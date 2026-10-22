@@ -1,0 +1,68 @@
+<div class="container-fluid mt-4 px-4" style="padding-bottom: 150px;">
+    <h2 class="text-success mb-4 fw-bold text-center">
+        <i class="fa-solid fa-cash-register"></i> Caja: Venta de Tratamientos
+    </h2>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <!-- La tarjeta principal CON OVERFLOW FORZADO PARA EVITAR QUE SE COMA LA LISTA -->
+            <div class="card shadow-lg border-0 rounded-4" style="border-left: 6px solid #198754; background-color: #212529; overflow: visible !important;">
+                <div class="card-body p-5" style="overflow: visible !important;">
+                    
+                    <!-- FORMULARIO DE ANGULAR -->
+                    <form (ngSubmit)="guardarVenta()" #ventaForm="ngForm" style="overflow: visible !important;">
+                        
+                        <!-- 1. PACIENTE (z-index alto para que pase por encima del resto) -->
+                        <div class="mb-4" style="position: relative; z-index: 1000;">
+                            <label class="fw-bold mb-2 text-white">Paciente:</label>
+                            <!-- Cambiamos form-select por form-control-lg para evitar bugs nativos de Bootstrap -->
+                            <select class="form-control form-control-lg shadow-sm" name="dniPaciente" [(ngModel)]="nuevaVenta.dniPaciente" required style="cursor: pointer;">
+                                <option value="" disabled selected>-- Seleccione el Paciente --</option>
+                                
+                                @for (p of listaPacientes; track p.dni) {
+                                    <option [value]="p.dni">{{ p.dni }} - {{ p.apellidos }}, {{ p.nombres }}</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="row mb-4" style="position: relative; z-index: 900;">
+                            <!-- 2. TRATAMIENTO -->
+                            <div class="col-md-8 mb-3 mb-md-0">
+                                <label class="fw-bold mb-2 text-white">Tratamiento a adquirir:</label>
+                                <select class="form-control form-control-lg shadow-sm" name="idTratamiento" [(ngModel)]="nuevaVenta.idTratamiento" (change)="calcularTotal()" required style="cursor: pointer;">
+                                    <option value="" disabled selected>-- Seleccione un Servicio --</option>
+                                    
+                                    @for (t of listaTratamientos; track t.idTratamiento) {
+                                        <option [value]="t.idTratamiento">{{ t.nombre }}</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- 3. SESIONES -->
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-2 text-white">N° de Sesiones:</label>
+                                <input type="number" class="form-control form-control-lg text-center shadow-sm" name="totalSesiones" [(ngModel)]="nuevaVenta.totalSesiones" (input)="calcularTotal()" min="1" max="50" required>
+                            </div>
+                        </div>
+
+                        <!-- 4. TOTAL A COBRAR (z-index bajo para que no estorbe) -->
+                        <div class="card mb-4 rounded-3 shadow-sm" style="background-color: #1a1d20; border: 1px solid #198754; position: relative; z-index: 1;">
+                            <div class="card-body text-center py-4">
+                                <h5 class="text-muted mb-2 fw-bold">TOTAL A COBRAR</h5>
+                                <h1 class="display-4 fw-bold text-success m-0">S/. {{ nuevaVenta.costoTotal | number:'1.2-2' }}</h1>
+                            </div>
+                        </div>
+
+                        <!-- 5. BOTÓN DE PAGO -->
+                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 rounded-pill shadow" 
+                                [disabled]="ventaForm.invalid || nuevaVenta.costoTotal <= 0" style="position: relative; z-index: 1;">
+                            <i class="fa-solid fa-check-circle"></i> EMITIR COMPROBANTE Y GENERAR CITAS
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

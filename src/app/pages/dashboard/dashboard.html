@@ -1,0 +1,102 @@
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="text-primary fw-bold mb-1">Panel de Control</h3>
+            <p class="text-muted">Bienvenido, <strong>{{ nombreActual }} ({{ cargoActual }})</strong>. ¿Qué deseas hacer hoy?</p>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 1: Operaciones Diarias -->
+    <h5 class="section-title"><i class="fa-solid fa-clipboard-list text-secondary"></i> Operaciones Diarias</h5>
+    <div class="row g-4 mb-5">
+        
+        <!-- PÚBLICO: Citas (Lo ven todos) -->
+        <div class="col-md-3"> 
+            <div class="card card-kpi bg-cyan shadow-sm" routerLink="/citas">
+                <p class="mb-1 fw-bold fs-6">Recepción</p>
+                <h3 class="fw-bold mb-0">Nueva Cita</h3>
+                <small>Agendar Valoración</small>
+                <i class="fa-solid fa-calendar-plus icon-bg"></i>
+            </div>
+        </div>
+
+        <!-- PÚBLICO: Citas/Atención (Lo ven todos) -->
+        <div class="col-md-3"> 
+            <div class="card card-kpi bg-green shadow-sm" routerLink="/citas">
+                <p class="mb-1 fw-bold fs-6">Consultorio</p>
+                <h3 class="fw-bold mb-0">Atención</h3>
+                <small>Lista de Espera / Triaje</small>
+                <i class="fa-solid fa-user-doctor icon-bg"></i>
+            </div>
+        </div>
+
+        <!-- RESTRINGIDO: Caja (Solo Admin y Asistente) -->
+        @if (cargoActual === 'ADMIN' || cargoActual === 'ASISTENTE') {
+            <div class="col-md-3">
+                <div class="card card-kpi bg-red shadow-sm" routerLink="/ventas">
+                    <p class="mb-1 fw-bold fs-6">Caja</p>
+                    <h3 class="fw-bold mb-0">Cobrar</h3>
+                    <small>Venta de Tratamientos</small>
+                    <i class="fa-solid fa-cash-register icon-bg"></i>
+                </div>
+            </div>
+        }
+
+        <!-- PÚBLICO: Pacientes (Lo ven todos) -->
+        <div class="col-md-3"> 
+            <div class="card card-kpi bg-blue shadow-sm" routerLink="/pacientes">
+                <p class="mb-1 fw-bold fs-6">Directorio</p>
+                <h3 class="fw-bold mb-0">Pacientes</h3>
+                <small>Gestión e Historias</small>
+                <i class="fa-solid fa-users icon-bg"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: Administración -->
+    <h5 class="section-title"><i class="fa-solid fa-cogs text-secondary"></i> Administración</h5>
+    <div class="row g-4 mb-5">
+        
+        <!-- RESTRINGIDO: Asistencia (Solo Admin y Médico) -->
+        @if (cargoActual === 'ADMIN' || cargoActual === 'MEDICO') {
+            <div class="col-md-3"> 
+                <div class="card card-kpi bg-purple shadow-sm" routerLink="/asistencia">
+                    <p class="mb-1 fw-bold fs-6">Personal</p>
+                    <h3 class="fw-bold mb-0">Asistencia</h3>
+                    <small>Control de Sesiones</small>
+                    <i class="fa-solid fa-clock icon-bg"></i>
+                </div>
+            </div>
+        }
+
+        <!-- RESTRINGIDO: Todo lo demás es SOLO ADMIN -->
+        @if (cargoActual === 'ADMIN') {
+            <div class="col-md-3"> 
+                <div class="card card-kpi bg-gray shadow-sm" routerLink="/reportes">
+                    <p class="mb-1 fw-bold fs-6">Finanzas</p>
+                    <h3 class="fw-bold mb-0">Historial</h3>
+                    <small>Ver transacciones</small>
+                    <i class="fa-solid fa-file-invoice-dollar icon-bg"></i>
+                </div>
+            </div>
+
+            <div class="col-md-3"> 
+                <div class="card card-kpi bg-yellow shadow-sm" routerLink="/tratamientos">
+                    <p class="mb-1 fw-bold fs-6 text-dark">Catálogo</p>
+                    <h3 class="fw-bold mb-0 text-dark">Tratamientos</h3>
+                    <small class="text-dark">Precios y Servicios</small>
+                    <i class="fa-solid fa-notes-medical icon-bg text-dark opacity-25"></i>
+                </div>
+            </div>
+
+            <div class="col-md-3"> 
+                <div class="card card-kpi bg-dark-gray shadow-sm" routerLink="/reportes">
+                    <p class="mb-1 fw-bold fs-6">Gerencia</p>
+                    <h3 class="fw-bold mb-0">Reportes</h3>
+                    <small>Gráficos Estadísticos</small>
+                    <i class="fa-solid fa-chart-pie icon-bg"></i>
+                </div>
+            </div>
+        }
+    </div>
+</div>

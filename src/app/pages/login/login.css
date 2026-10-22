@@ -1,0 +1,32 @@
+/* Contenedor que ocupa toda la pantalla */
+.login-container {
+    background: linear-gradient(135deg, #0033A0 0%, #d63384 100%); 
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-login {
+    width: 400px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background: white;
+    padding: 30px;
+}
+
+.btn-login {
+    background: #0033A0;
+    color: white;
+    width: 100%;
+    padding: 10px;
+    border-radius: 25px;
+    font-weight: bold;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-login:hover { 
+    background: #002270; 
+    color: white; 
+}

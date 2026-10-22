@@ -1,0 +1,46 @@
+.card-kpi {
+    border: none;
+    border-radius: 12px; 
+    transition: all 0.3s ease; 
+    color: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    min-height: 140px; 
+    padding: 20px;
+}
+
+.card-kpi:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.icon-bg {
+    font-size: 6rem;
+    opacity: 0.15;
+    position: absolute;
+    right: -5px;
+    bottom: -15px;
+    transition: all 0.3s ease;
+}
+
+.card-kpi:hover .icon-bg {
+    transform: scale(1.1) rotate(-10deg);
+}
+
+.bg-cyan { background-color: #17a2b8; }
+.bg-green { background-color: #198754; }
+.bg-red { background-color: #dc3545; }
+.bg-blue { background-color: #0d6efd; }
+.bg-purple { background-color: #6f42c1; }
+.bg-gray { background-color: #6c757d; }
+.bg-yellow { background-color: #ffc107; color: #212529 !important; } 
+.bg-dark-gray { background-color: #212529; }
+
+.section-title {
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: #495057;
+    font-weight: bold;
+}

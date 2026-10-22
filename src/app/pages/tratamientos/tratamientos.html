@@ -1,0 +1,91 @@
+<div class="container-fluid mt-4 px-4">
+    <h2 class="text-center titulo-main mb-4 text-primary fw-bold">
+        <i class="fa-solid fa-notes-medical"></i> Gestión de Tratamientos y Tarifas
+    </h2>
+    
+    <div class="text-end mb-3">
+        <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalTratamiento" (click)="prepararNuevoTratamiento()">
+            <i class="fa-solid fa-plus"></i> Nuevo Tratamiento
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del Tratamiento</th>
+                            <th>Precio (S/.)</th>
+                            <th>Descripción</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (t of listaTratamientos; track t.idTratamiento) {
+                            <tr class="align-middle">
+                                <td>{{ t.idTratamiento }}</td>
+                                <td><strong>{{ t.nombre }}</strong></td>
+                                <td class="text-success fw-bold">S/. {{ t.precio }}</td>
+                                <td>{{ t.descripcion }}</td>
+                                <td class="text-center" style="width: 120px;">
+                                    <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalTratamiento" (click)="abrirModalEditar(t)">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" (click)="eliminar(t)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No hay tratamientos registrados.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Tratamiento -->
+<div class="modal fade" id="modalTratamiento" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-stethoscope"></i> {{ esEdicion ? 'Editar Tratamiento' : 'Nuevo Tratamiento' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form #formTratamiento="ngForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del Tratamiento:</label>
+                        <input type="text" name="nombre" class="form-control" required [(ngModel)]="tratamientoObj.nombre">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Precio (S/.):</label>
+                        <input type="number" step="0.01" name="precio" class="form-control" required min="0" [(ngModel)]="tratamientoObj.precio">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción:</label>
+                        <textarea name="descripcion" class="form-control" rows="3" [(ngModel)]="tratamientoObj.descripcion"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <!-- El botón se desactiva si falta el nombre o el precio -->
+                    <button type="button" class="btn btn-primary fw-bold" data-bs-dismiss="modal" [disabled]="formTratamiento.invalid" (click)="guardar()">
+                        <i class="fa-solid fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

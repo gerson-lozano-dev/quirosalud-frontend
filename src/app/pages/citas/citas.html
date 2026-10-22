@@ -1,0 +1,110 @@
+<div class="container-fluid mt-4 px-4">
+    <h2 class="text-center titulo-main mb-4 text-primary fw-bold">
+        <i class="fa-solid fa-calendar-days"></i> Gestión de Citas y Triaje
+    </h2>
+
+    <!-- SECCIÓN 1: RECEPCIÓN (Agendar Cita) -->
+    <div class="card shadow-sm mb-5 border-primary">
+        <div class="card-header bg-primary text-white fw-bold">
+            <i class="fa-solid fa-calendar-plus"></i> Nueva Cita de Valoración
+        </div>
+        <div class="card-body">
+            <form #formCita="ngForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="fw-bold">DNI Paciente:</label>
+                    <input type="text" name="dni" class="form-control" maxlength="8" required [(ngModel)]="nuevaCita.dniPaciente" placeholder="Ej: 77889900">
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Fecha:</label>
+                    <input type="date" name="fecha" class="form-control" required [(ngModel)]="nuevaCita.fecha">
+                </div>
+                <div class="col-md-2">
+                    <label class="fw-bold">Hora:</label>
+                    <input type="time" name="hora" class="form-control" required [(ngModel)]="nuevaCita.hora">
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Motivo:</label>
+                    <input type="text" name="motivo" class="form-control" required [(ngModel)]="nuevaCita.motivo" placeholder="Ej: Dolor lumbar">
+                </div>
+                <div class="col-12 text-end">
+                    <button class="btn btn-primary fw-bold" [disabled]="formCita.invalid" (click)="agendarCita()">
+                        <i class="fa-solid fa-save"></i> Agendar Paciente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: DOCTOR (Sala de Espera) -->
+    <div class="card shadow-sm border-success">
+        <div class="card-header bg-success text-white fw-bold">
+            <i class="fa-solid fa-user-doctor"></i> Sala de Espera (Pacientes Pendientes)
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Hora</th>
+                            <th>Paciente (DNI)</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acción (Doctor)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (c of listaPendientes; track c.idConsulta) {
+                            <tr>
+                                <td><i class="fa-regular fa-clock text-primary"></i> <strong>{{ c.hora }}</strong></td>
+                                <td>
+                                    <strong>{{ c.paciente?.nombres }} {{ c.paciente?.apellidos }}</strong> 
+                                    <br><small class="text-muted">DNI: {{ c.paciente?.dni }}</small>
+                                </td>
+                                <td>{{ c.motivo }}</td>
+                                <td><span class="badge bg-warning text-dark">{{ c.estado }}</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalAtencion" (click)="prepararAtencion(c)">
+                                        <i class="fa-solid fa-stethoscope"></i> Atender
+                                    </button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No hay pacientes en la sala de espera. ¡Tómate un café!</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DEL DOCTOR (Finalizar Atención) -->
+<div class="modal fade" id="modalAtencion" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">
+                    Atendiendo a: {{ nombrePacienteAtencion }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form #formAtencion="ngForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-success">Diagnóstico Médico y Recomendaciones:</label>
+                        <textarea name="diagnostico" class="form-control" rows="6" required [(ngModel)]="citaAtencion.diagnostico" placeholder="Redacta el diagnóstico aquí..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success fw-bold" data-bs-dismiss="modal" [disabled]="formAtencion.invalid" (click)="finalizarConsulta()">
+                        <i class="fa-solid fa-check-double"></i> Guardar y Finalizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

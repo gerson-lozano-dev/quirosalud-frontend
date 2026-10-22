@@ -1,0 +1,120 @@
+<div class="container-fluid mt-4 px-4">
+    <h2 class="text-center text-primary fw-bold mb-4">
+        <i class="fa-solid fa-calendar-check"></i> Control de Sesiones y Asistencia
+    </h2>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div class="card shadow-sm border-primary mb-4">
+        <div class="card-body">
+            <form class="row g-3 align-items-center justify-content-center" (submit)="buscarHistorial(); $event.preventDefault()">
+                <div class="col-auto">
+                    <label class="col-form-label fw-bold">Ingrese DNI del Paciente:</label>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="dni" class="form-control" placeholder="Ej: 76956895" maxlength="8" required [(ngModel)]="dniBusqueda">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary fw-bold">
+                        <i class="fa-solid fa-search"></i> Buscar Historial
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RESULTADOS (Solo se muestran si ya buscó) -->
+    @if (busquedaRealizada) {
+        @if (listaCitas.length > 0) {
+            <div class="card shadow">
+                <div class="card-header bg-white text-primary fw-bold">
+                    <i class="fa-solid fa-list"></i> Historial de Tratamiento
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0 align-middle text-center">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th># Sesión (ID)</th>
+                                    <th>Hoja de Pago</th>
+                                    <th>Notas / Observaciones</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (c of listaCitas; track c.idCita) {
+                                    <tr>
+                                        <td><strong>Sesión {{ c.idCita }}</strong></td>
+                                        
+                                        <!-- Hacemos navegación segura por si la hojaPago demora en cargar -->
+                                        <td>{{ c.hojaPago?.nroHp || 'N/A' }}</td>
+                                        
+                                        <td class="text-start">{{ c.notasAjuste || 'Sin notas' }}</td>
+                                        
+                                        <td>
+                                            @if (c.asistio) {
+                                                <span class="badge bg-success">ATENDIDO</span>
+                                            } @else {
+                                                <span class="badge bg-warning text-dark">PENDIENTE</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!c.asistio) {
+                                                <button type="button" class="btn btn-sm btn-success fw-bold" 
+                                                        data-bs-toggle="modal" data-bs-target="#modalAsistencia" 
+                                                        (click)="prepararAsistencia(c)">
+                                                    <i class="fa-solid fa-check"></i> Registrar Asistencia
+                                                </button>
+                                            } @else {
+                                                <button class="btn btn-sm btn-secondary" disabled>
+                                                    <i class="fa-solid fa-lock"></i> Finalizado
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        } @else {
+            <div class="alert alert-warning text-center shadow-sm">
+                <i class="fa-solid fa-circle-exclamation fs-4 mb-2"></i><br>
+                No se encontraron citas o ventas registradas para el DNI <strong>{{ dniBusqueda }}</strong>. 
+                Verifique en el módulo de Ventas.
+            </div>
+        }
+    }
+</div>
+
+<!-- MODAL PARA NOTAS DE ASISTENCIA -->
+<div class="modal fade" id="modalAsistencia" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-clipboard-check"></i> Confirmar Asistencia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form #formAsistencia="ngForm">
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">Estás a punto de marcar la Sesión {{ citaSeleccionada.idCita }} como "ATENDIDA".</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Notas del Especialista (Opcional):</label>
+                        <textarea name="notasAjuste" class="form-control" rows="3" 
+                                  placeholder="Ej: Paciente refiere mejoría en zona lumbar..."
+                                  [(ngModel)]="citaSeleccionada.notasAjuste"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center bg-light">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success fw-bold" data-bs-dismiss="modal" (click)="guardarAsistencia()">
+                        <i class="fa-solid fa-check"></i> Sí, Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

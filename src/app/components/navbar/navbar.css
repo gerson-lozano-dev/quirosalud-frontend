@@ -1,0 +1,34 @@
+/* --- DISEÑO MODERNO PARA LOS BOTONES DEL MENÚ --- */
+
+/* 1. Preparamos el link para que sea una cajita */
+.navbar-nav .nav-link {
+    border-radius: 8px; /* Bordes redondeados modernos */
+    padding: 8px 16px !important;
+    margin: 0 5px;
+    transition: all 0.3s ease; /* Que el cambio de color sea suave, no de golpe */
+}
+
+/* 2. Efecto hover: Cuando pasas el mouse por encima (sin dar clic) */
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1); 
+}
+
+/* 3. EFECTO ACTIVO: La cajita iluminada para los botones normales */
+.navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.25); /* Un fondo blanco semi-transparente */
+    font-weight: bold;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Sombra elegante */
+}
+
+/* --- REGLA EXCLUSIVA PARA EL BOTÓN DE VENTAS --- */
+.ventas-link {
+    color: #ffc107 !important; /* Mantiene su amarillo normal */
+}
+
+/* Cuando Ventas está activo: Fondo amarillo encendido y texto oscuro para que resalte */
+.navbar-nav .ventas-link.active {
+    background-color: #ffc107 !important;
+    color: #212529 !important; /* Texto gris oscuro para dar buen contraste */
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
