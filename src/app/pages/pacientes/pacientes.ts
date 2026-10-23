@@ -36,6 +36,19 @@ export class PacientesComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarPacientes();
+    this.cargarDistritos();
+  }
+
+  cargarDistritos() {
+    this.pacienteService.listarDistritos().subscribe({
+      next: (datos) => {
+        if (datos && datos.length > 0) {
+          this.listaDistritos = datos;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => console.log('Usando distritos locales', err)
+    });
   }
 
   prepararNuevoPaciente() {

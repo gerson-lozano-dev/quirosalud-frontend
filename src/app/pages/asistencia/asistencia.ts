@@ -16,10 +16,16 @@ export class AsistenciaComponent {
 
   dniBusqueda: string = '';
   listaCitas: any[] = [];
+  
+  // Nuevas variables para que el doctor vea el contexto clínico del paciente
+  pacienteEncontrado: any = null;
+  listaConsultas: any[] = [];
+  ultimoDiagnostico: any = null;
+
   busquedaRealizada: boolean = false;
 
-  // Objeto para atrapar las notas del modal y mandarlas al backend
-  citaSeleccionada: any = { idCita: null, notasAjuste: '' };
+  // Objeto para atrapar las notas del modal y si pagó la sesión en ese momento
+  citaSeleccionada: any = { idCita: null, notasAjuste: '', pagado: true };
 
   buscarHistorial() {
     if (!this.dniBusqueda || this.dniBusqueda.length !== 8) {
@@ -27,24 +33,29 @@ export class AsistenciaComponent {
       return;
     }
 
-    this.asistenciaService.buscarHistorial(this.dniBusqueda).subscribe({
-      next: (datos) => {
-        this.listaCitas = datos;
+    this.asistenciaService.obtenerExpedienteCompleto(this.dniBusqueda).subscribe({
+      next: (expediente) => {
+        this.pacienteEncontrado = expediente.paciente;
+        this.listaConsultas = expediente.consultas || [];
+        this.ultimoDiagnostico = this.listaConsultas.length > 0 ? this.listaConsultas[0] : null;
+        this.listaCitas = expediente.sesiones || [];
+        
         this.busquedaRealizada = true;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error al buscar citas', err);
-        Swal.fire('Error', 'No se pudo cargar el historial.', 'error');
+        console.error('Error al buscar el expediente clínico', err);
+        Swal.fire('Error', 'No se pudo cargar el historial del paciente.', 'error');
       }
     });
   }
 
-  // Prepara el modal vacío antes de abrirlo
+  // Prepara el modal antes de abrirlo
   prepararAsistencia(citaFila: any) {
     this.citaSeleccionada = { 
       idCita: citaFila.idCita, 
-      notasAjuste: '' 
+      notasAjuste: citaFila.notasAjuste || '',
+      pagado: citaFila.pagado ?? true
     };
   }
 
@@ -52,15 +63,22 @@ export class AsistenciaComponent {
     this.asistenciaService.marcarAsistencia(this.citaSeleccionada.idCita, this.citaSeleccionada).subscribe({
       next: () => this.exitoAlGuardar(),
       error: (err) => {
-        // HACK SENIOR: Atrapamos el String "Asistencia confirmada exitosamente" que devuelve tu backend
-        if (err.status === 200) { this.exitoAlGuardar(); } 
-        else { Swal.fire('Error', 'No se pudo marcar la asistencia.', 'error'); }
+        if (err.status === 200) { 
+          this.exitoAlGuardar(); 
+        } else { 
+          Swal.fire('Error', 'No se pudo marcar la asistencia.', 'error'); 
+        }
       }
     });
   }
 
   exitoAlGuardar() {
-    Swal.fire({ title: '¡Asistencia Marcada!', text: 'La sesión ha sido completada.', icon: 'success', confirmButtonColor: '#198754' });
-    this.buscarHistorial(); // Refrescamos la tabla automáticamente
+    Swal.fire({ 
+      title: '¡Asistencia Marcada!', 
+      text: 'La sesión y las notas de evolución han sido guardadas.', 
+      icon: 'success', 
+      confirmButtonColor: '#198754' 
+    });
+    this.buscarHistorial(); // Refrescamos el expediente automáticamente
   }
 }

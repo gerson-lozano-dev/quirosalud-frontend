@@ -1,0 +1,47 @@
+<app-navbar></app-navbar>
+
+<div class="container py-4" style="max-width: 560px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0"><i class="fa-solid fa-key me-2"></i> Cambiar Contraseña</h4>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted">Por seguridad, confirma tu contraseña actual. Al guardar, deberás iniciar sesión nuevamente.</p>
+      
+      <form (ngSubmit)="guardar()" #form="ngForm">
+        <div class="mb-3">
+          <label for="claveActual" class="form-label fw-bold">Contraseña actual</label>
+          <input id="claveActual" type="password" name="claveActual" autocomplete="current-password"
+                 class="form-control" [(ngModel)]="claveActual" required placeholder="Ingresa tu contraseña actual" />
+        </div>
+        
+        <div class="mb-3">
+          <label for="claveNueva" class="form-label fw-bold">Nueva contraseña</label>
+          <input id="claveNueva" type="password" name="claveNueva" autocomplete="new-password"
+                 class="form-control" [(ngModel)]="claveNueva" required minlength="10" maxlength="128"
+                 placeholder="Mínimo 10 caracteres" />
+          <small class="text-muted">Debe contener entre 10 y 128 caracteres.</small>
+        </div>
+        
+        <div class="mb-3">
+          <label for="confirmacion" class="form-label fw-bold">Confirmar nueva contraseña</label>
+          <input id="confirmacion" type="password" name="confirmacion" autocomplete="new-password"
+                 class="form-control" [(ngModel)]="confirmacion" required placeholder="Repite la nueva contraseña" />
+        </div>
+        
+        @if (error) {
+          <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ error }}
+          </div>
+        }
+        
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary fw-bold" [disabled]="form.invalid || procesando">
+            <i class="fa-solid fa-floppy-disk me-1"></i> {{ procesando ? 'Guardando...' : 'Guardar nueva contraseña' }}
+          </button>
+          <a routerLink="/dashboard" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

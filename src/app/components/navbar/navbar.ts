@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router'; 
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-navbar',
@@ -8,24 +9,26 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class NavbarComponent { 
-  
-  // 1. Inyectamos el Router (DENTRO de la clase)
+export class NavbarComponent implements OnInit { 
   private router = inject(Router);
+  private auth = inject(AuthService);
 
-  cargoActual = localStorage.getItem('cargoUsuario');
-  // Variable para guardar el nombre
-  nombreActual: string = '';
+  cargoActual: string = '';
+  nombreActual: string = 'Usuario';
 
   ngOnInit() {
-    // Cuando el menú carga, saca el nombre de la memoria (o pone Usuario si no hay nada)
-    this.nombreActual = localStorage.getItem('nombreUsuario') || 'Usuario';
+    const usuario = this.auth.usuarioActual();
+    if (usuario) {
+      this.nombreActual = usuario.nombres || 'Usuario';
+      this.cargoActual = (usuario.cargo || '').replace('ROLE_', '').toUpperCase();
+    } else {
+      this.cargoActual = (localStorage.getItem('cargoUsuario') || '').replace('ROLE_', '').toUpperCase();
+      this.nombreActual = localStorage.getItem('nombreUsuario') || 'Usuario';
+    }
   }
 
-  // 2. El método va DENTRO de la clase
   cerrarSesion() {
-    localStorage.clear();
-    this.router.navigate(['/login']); // Lo mandamos al login
+    this.auth.cerrarSesion();
+    this.router.navigate(['/login']);
   }
-  
 }

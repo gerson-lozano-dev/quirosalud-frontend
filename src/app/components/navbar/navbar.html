@@ -10,7 +10,7 @@
             <!-- CAJA IZQUIERDA: Menú dinámico por Roles -->
             <ul class="navbar-nav me-auto">
                 
-                <!--  PÚBLICO: Lo ven todos (Admin, Médico, Asistente) -->
+                <!-- PÚBLICO: Lo ven todos (Admin, Médico, Asistente) -->
                 <li class="nav-item">
                     <a class="nav-link" routerLink="/pacientes" routerLinkActive="active">
                         <i class="fa-solid fa-hospital-user"></i> Pacientes
@@ -22,7 +22,7 @@
                     </a>
                 </li>
 
-                <!--  MÉDICOS: Lo ve el Admin y el Médico -->
+                <!-- MÉDICOS: Lo ve el Admin y el Médico -->
                 @if (cargoActual === 'ADMIN' || cargoActual === 'MEDICO') {
                     <li class="nav-item">
                         <a class="nav-link" routerLink="/asistencia" routerLinkActive="active">
@@ -31,7 +31,7 @@
                     </li>
                 }
 
-                <!--  PRIVADO: Solo lo ve el Administrador -->
+                <!-- PRIVADO: Solo lo ve el Administrador -->
                 @if (cargoActual === 'ADMIN') {
                     <li class="nav-item">
                         <a class="nav-link" routerLink="/tratamientos" routerLinkActive="active">
@@ -53,7 +53,6 @@
                 <!-- CAJA: Lo ve el Admin y el Asistente -->
                 @if (cargoActual === 'ADMIN' || cargoActual === 'ASISTENTE') {
                     <li class="nav-item">
-                        <!-- Reemplazamos text-warning por ventas-link -->
                         <a class="nav-link fw-bold ventas-link" routerLink="/ventas" routerLinkActive="active">
                             <i class="fa-solid fa-cart-shopping"></i> Ventas
                         </a>
@@ -62,9 +61,15 @@
             </ul>
             <!-- FIN CAJA IZQUIERDA -->
             
-            <!-- CAJA DERECHA: Perfil de usuario dinámico -->
+            <!-- CAJA DERECHA: Perfil de usuario dinámico y opciones de cuenta -->
             <div class="text-white d-flex align-items-center">
-                <span class="me-3 fw-bold"><i class="fa-solid fa-circle-user"></i> {{ nombreActual }}</span>
+                <span class="me-3 fw-bold">
+                    <i class="fa-solid fa-circle-user"></i> {{ nombreActual }}
+                    <span class="badge bg-light text-primary ms-1">{{ cargoActual }}</span>
+                </span>
+                <a class="btn btn-sm btn-outline-light me-2 fw-bold" routerLink="/cambiar-clave" title="Cambiar Contraseña">
+                    <i class="fa-solid fa-key"></i> Clave
+                </a>
                 <button class="btn btn-sm btn-danger fw-bold" (click)="cerrarSesion()">
                     <i class="fa-solid fa-right-from-bracket"></i> Salir
                 </button>

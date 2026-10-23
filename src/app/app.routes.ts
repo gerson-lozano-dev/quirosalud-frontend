@@ -8,6 +8,7 @@ import { CitasComponent } from './pages/citas/citas';
 import { VentasComponent } from './pages/ventas/ventas';
 import { AsistenciaComponent } from './pages/asistencia/asistencia';
 import { ReportesComponent } from './pages/reportes/reportes';
+import { CambiarClaveComponent } from './pages/cambiar-clave/cambiar-clave';
 
 import { authGuard } from './guards/auth-guard';
 
@@ -18,6 +19,9 @@ export const routes: Routes = [
   // El Dashboard es para todos los que estén logueados
   { path: 'dashboard', component: DashboardComponent , canActivate: [authGuard] },
   
+  // Cambio de contraseña para usuarios autenticados
+  { path: 'cambiar-clave', component: CambiarClaveComponent, canActivate: [authGuard] },
+
   // Pacientes: Lo ven todos
   { path: 'pacientes', component: PacientesComponent , canActivate: [authGuard], data: { roles: ['ADMIN', 'MEDICO', 'ASISTENTE'] } },
   
