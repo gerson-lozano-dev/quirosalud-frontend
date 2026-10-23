@@ -15,28 +15,30 @@
             <div class="card card-kpi bg-cyan shadow-sm" routerLink="/citas">
                 <p class="mb-1 fw-bold fs-6">Recepción</p>
                 <h3 class="fw-bold mb-0">Nueva Cita</h3>
-                <small>Agendar Valoración</small>
+                <small>Agendar Triaje y Espera</small>
                 <i class="fa-solid fa-calendar-plus icon-bg"></i>
             </div>
         </div>
 
-        <!-- PÚBLICO: Citas/Atención (Lo ven todos) -->
-        <div class="col-md-3"> 
-            <div class="card card-kpi bg-green shadow-sm" routerLink="/citas">
-                <p class="mb-1 fw-bold fs-6">Consultorio</p>
-                <h3 class="fw-bold mb-0">Atención</h3>
-                <small>Lista de Espera / Triaje</small>
-                <i class="fa-solid fa-user-doctor icon-bg"></i>
+        <!-- MÉDICO / ADMIN: Asistencia y evolución médica -->
+        @if (cargoActual === 'ADMIN' || cargoActual === 'MEDICO') {
+            <div class="col-md-3"> 
+                <div class="card card-kpi bg-green shadow-sm" routerLink="/asistencia">
+                    <p class="mb-1 fw-bold fs-6">Consultorio</p>
+                    <h3 class="fw-bold mb-0">Asistencia</h3>
+                    <small>Control de Sesiones</small>
+                    <i class="fa-solid fa-user-doctor icon-bg"></i>
+                </div>
             </div>
-        </div>
+        }
 
         <!-- RESTRINGIDO: Caja (Solo Admin y Asistente) -->
         @if (cargoActual === 'ADMIN' || cargoActual === 'ASISTENTE') {
             <div class="col-md-3">
                 <div class="card card-kpi bg-red shadow-sm" routerLink="/ventas">
                     <p class="mb-1 fw-bold fs-6">Caja</p>
-                    <h3 class="fw-bold mb-0">Cobrar</h3>
-                    <small>Venta de Tratamientos</small>
+                    <h3 class="fw-bold mb-0">Ventas</h3>
+                    <small>Paquetes y Boletas</small>
                     <i class="fa-solid fa-cash-register icon-bg"></i>
                 </div>
             </div>
@@ -54,29 +56,15 @@
     </div>
 
     <!-- SECCIÓN 2: Administración -->
-    <h5 class="section-title"><i class="fa-solid fa-cogs text-secondary"></i> Administración</h5>
-    <div class="row g-4 mb-5">
-        
-        <!-- RESTRINGIDO: Asistencia (Solo Admin y Médico) -->
-        @if (cargoActual === 'ADMIN' || cargoActual === 'MEDICO') {
-            <div class="col-md-3"> 
-                <div class="card card-kpi bg-purple shadow-sm" routerLink="/asistencia">
-                    <p class="mb-1 fw-bold fs-6">Personal</p>
-                    <h3 class="fw-bold mb-0">Asistencia</h3>
-                    <small>Control de Sesiones</small>
-                    <i class="fa-solid fa-clock icon-bg"></i>
-                </div>
-            </div>
-        }
-
-        <!-- RESTRINGIDO: Todo lo demás es SOLO ADMIN -->
-        @if (cargoActual === 'ADMIN') {
+    @if (cargoActual === 'ADMIN') {
+        <h5 class="section-title"><i class="fa-solid fa-cogs text-secondary"></i> Administración y Gerencia</h5>
+        <div class="row g-4 mb-5">
             <div class="col-md-3"> 
                 <div class="card card-kpi bg-gray shadow-sm" routerLink="/reportes">
                     <p class="mb-1 fw-bold fs-6">Finanzas</p>
-                    <h3 class="fw-bold mb-0">Historial</h3>
-                    <small>Ver transacciones</small>
-                    <i class="fa-solid fa-file-invoice-dollar icon-bg"></i>
+                    <h3 class="fw-bold mb-0">Reportes</h3>
+                    <small>Gráficos y Transacciones</small>
+                    <i class="fa-solid fa-chart-pie icon-bg"></i>
                 </div>
             </div>
 
@@ -90,13 +78,22 @@
             </div>
 
             <div class="col-md-3"> 
-                <div class="card card-kpi bg-dark-gray shadow-sm" routerLink="/reportes">
-                    <p class="mb-1 fw-bold fs-6">Gerencia</p>
-                    <h3 class="fw-bold mb-0">Reportes</h3>
-                    <small>Gráficos Estadísticos</small>
-                    <i class="fa-solid fa-chart-pie icon-bg"></i>
+                <div class="card card-kpi bg-purple shadow-sm" routerLink="/usuarios">
+                    <p class="mb-1 fw-bold fs-6">Seguridad</p>
+                    <h3 class="fw-bold mb-0">Usuarios</h3>
+                    <small>Accesos y Roles</small>
+                    <i class="fa-solid fa-users-gear icon-bg"></i>
                 </div>
             </div>
-        }
-    </div>
+
+            <div class="col-md-3"> 
+                <div class="card card-kpi bg-dark-gray shadow-sm" routerLink="/cambiar-clave">
+                    <p class="mb-1 fw-bold fs-6">Mi Cuenta</p>
+                    <h3 class="fw-bold mb-0">Seguridad</h3>
+                    <small>Cambiar Contraseña</small>
+                    <i class="fa-solid fa-key icon-bg"></i>
+                </div>
+            </div>
+        </div>
+    }
 </div>

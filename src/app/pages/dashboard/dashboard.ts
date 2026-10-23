@@ -12,8 +12,7 @@ export class DashboardComponent implements OnInit {
   nombreActual: string = '';
   cargoActual: string = '';
 
-  ngOnInit() {
-    // Jalamos los datos desde la memoria del navegador
+  ngOnInit(): void {
     this.nombreActual = localStorage.getItem('nombreUsuario') || 'Usuario';
     this.cargoActual = localStorage.getItem('cargoUsuario') || 'SIN CARGO';
   }

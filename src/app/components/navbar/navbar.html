@@ -1,16 +1,14 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow mb-4">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold" routerLink="/dashboard"><i class="fa-solid fa-user-doctor"></i> SIS-QUIRO</a>
+        <a class="navbar-brand fw-bold" routerLink="/dashboard"><i class="fa-solid fa-shield-heart me-1"></i> SIS-QUIRO</a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
             <span class="navbar-toggler-icon"></span>
         </button>
         
         <div class="collapse navbar-collapse" id="navbarContent">
-            <!-- CAJA IZQUIERDA: Menú dinámico por Roles -->
+            <!-- Menú de navegación -->
             <ul class="navbar-nav me-auto">
-                
-                <!-- PÚBLICO: Lo ven todos (Admin, Médico, Asistente) -->
                 <li class="nav-item">
                     <a class="nav-link" routerLink="/pacientes" routerLinkActive="active">
                         <i class="fa-solid fa-hospital-user"></i> Pacientes
@@ -22,7 +20,6 @@
                     </a>
                 </li>
 
-                <!-- MÉDICOS: Lo ve el Admin y el Médico -->
                 @if (cargoActual === 'ADMIN' || cargoActual === 'MEDICO') {
                     <li class="nav-item">
                         <a class="nav-link" routerLink="/asistencia" routerLinkActive="active">
@@ -31,7 +28,6 @@
                     </li>
                 }
 
-                <!-- PRIVADO: Solo lo ve el Administrador -->
                 @if (cargoActual === 'ADMIN') {
                     <li class="nav-item">
                         <a class="nav-link" routerLink="/tratamientos" routerLinkActive="active">
@@ -50,7 +46,6 @@
                     </li>
                 }
                 
-                <!-- CAJA: Lo ve el Admin y el Asistente -->
                 @if (cargoActual === 'ADMIN' || cargoActual === 'ASISTENTE') {
                     <li class="nav-item">
                         <a class="nav-link fw-bold ventas-link" routerLink="/ventas" routerLinkActive="active">
@@ -59,13 +54,12 @@
                     </li>
                 }
             </ul>
-            <!-- FIN CAJA IZQUIERDA -->
             
-            <!-- CAJA DERECHA: Perfil de usuario dinámico y opciones de cuenta -->
+            <!-- Perfil de usuario -->
             <div class="text-white d-flex align-items-center">
                 <span class="me-3 fw-bold">
                     <i class="fa-solid fa-circle-user"></i> {{ nombreActual }}
-                    <span class="badge bg-light text-primary ms-1">{{ cargoActual }}</span>
+                    <span class="badge bg-white text-dark ms-1 shadow-sm">{{ cargoActual }}</span>
                 </span>
                 <a class="btn btn-sm btn-outline-light me-2 fw-bold" routerLink="/cambiar-clave" title="Cambiar Contraseña">
                     <i class="fa-solid fa-key"></i> Clave

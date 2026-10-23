@@ -22,7 +22,6 @@ export class UsuariosComponent implements OnInit {
     this.cargarUsuarios();
   }
 
-  // Respetamos los mismos campos que usaste en tu modelo Java original
   obtenerUsuarioVacio() {
     this.esEdicion = false;
     return {
@@ -31,7 +30,7 @@ export class UsuariosComponent implements OnInit {
       apellidos: '',
       email: '',
       clave: '',
-      cargo: 'ASISTENTE' // Rol por defecto
+      cargo: 'ASISTENTE'
     };
   }
 
@@ -54,7 +53,6 @@ export class UsuariosComponent implements OnInit {
     this.esEdicion = true;
     this.usuarioObj = { ...usuarioFila };
     
-    // Vaciamos la contraseña visualmente por seguridad.
     this.usuarioObj.clave = ''; 
     
     this.cdr.detectChanges();

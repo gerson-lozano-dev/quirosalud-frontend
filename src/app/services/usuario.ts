@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class UsuarioService {
   
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8990/api/usuarios'; 
+  private apiUrl = 'http://localhost:8080/api/v1/usuarios'; 
 
   listarUsuarios(): Observable<any> {
     return this.http.get(`${this.apiUrl}/listado`);

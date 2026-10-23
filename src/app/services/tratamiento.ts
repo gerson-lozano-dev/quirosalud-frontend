@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class TratamientoService {
   
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8990/api/tratamientos'; 
+  private apiUrl = 'http://localhost:8080/api/v1/tratamientos'; 
 
   listarTratamientos(): Observable<any> {
     return this.http.get(`${this.apiUrl}/listado`);

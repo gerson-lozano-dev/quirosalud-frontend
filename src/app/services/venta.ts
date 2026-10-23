@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class VentaService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8990/api/ventas';
+  private apiUrl = 'http://localhost:8080/api/v1/ventas';
 
   registrarVenta(hojaPago: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/registro`, hojaPago);

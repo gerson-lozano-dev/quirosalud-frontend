@@ -7,12 +7,12 @@ import { Observable } from 'rxjs';
 })
 export class ReporteService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8990/api/reportes';
+  private apiUrl = 'http://localhost:8080/api/v1/reportes';
 
   obtenerEstadisticaDistritos(): Observable<any> {
     return this.http.get(`${this.apiUrl}/distritos`);
   }
-  // Ya tenías el de distritos, agrega este:
+
   obtenerHistorialVentas(): Observable<any> {
     return this.http.get(`${this.apiUrl}/ventas`);
   }

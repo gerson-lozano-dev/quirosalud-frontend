@@ -1,37 +1,35 @@
 .titulo-main { 
-    color: #d63384; 
+    color: #e85d38; 
     font-weight: bold; 
 }
 
 .btn-custom { 
-    background: #d63384; 
+    background-color: #e85d38; 
     color: white; 
     border-radius: 20px; 
     transition: 0.3s;
+    border: none;
 }
 
 .btn-custom:hover { 
-    background: #a61e61; 
+    background-color: #d34e2b; 
     color: white; 
 }
 
 .seccion-titulo { 
-    border-bottom: 2px solid #ddd; 
+    border-bottom: 2px solid #e8ecf1; 
     margin-bottom: 15px; 
     padding-bottom: 5px; 
-    color: #555; 
+    color: #e85d38; 
     font-weight: bold;
 }
 
-/* Pinta un pequeño borde izquierdo rojo si el campo es obligatorio/inválido y el usuario ya lo tocó */
-/* Rojo para cualquier campo inválido tocado */
 input.ng-invalid.ng-touched, 
 select.ng-invalid.ng-touched, 
 textarea.ng-invalid.ng-touched {
     border-left: 5px solid #dc3545;
 }
 
-/* Verde SOLO para campos que son OBLIGATORIOS ([required]) y están correctos */
 input[required].ng-valid.ng-touched, 
 select[required].ng-valid.ng-touched, 
 textarea[required].ng-valid.ng-touched {

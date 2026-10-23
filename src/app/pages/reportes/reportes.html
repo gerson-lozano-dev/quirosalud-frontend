@@ -58,7 +58,7 @@
                                 @for (v of listaVentas; track v.nroHp) {
                                     <tr>
                                         <td><strong>{{ v.nroHp }}</strong></td>
-                                        <td>{{ v.fecha | date:'dd/MM/yyyy' }}</td>
+                                        <td>{{ (v.fecha | date:'dd/MM/yyyy':'UTC') || v.fecha }}</td>
                                         <td>{{ v.dni }}</td>
                                         <td class="text-center">{{ v.sesiones }}</td>
                                         <td class="text-end text-success fw-bold">S/. {{ v.total | number:'1.2-2' }}</td>

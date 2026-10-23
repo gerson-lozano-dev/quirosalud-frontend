@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './tratamientos.html',
-  styleUrl: './tratamientos.css' // Si no tienes CSS, puedes dejarlo vacío o borrar esta línea
+  styleUrl: './tratamientos.css'
 })
 export class TratamientosComponent implements OnInit {
 

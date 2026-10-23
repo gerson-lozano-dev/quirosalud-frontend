@@ -8,7 +8,6 @@ import { Observable } from 'rxjs';
 export class ConsultaService {
   
   private http = inject(HttpClient);
-  // Ahora todo pasa por el API Gateway en el puerto 8080
   private apiUrl = 'http://localhost:8080/api/v1/consultas'; 
 
   listarPendientes(): Observable<any> {

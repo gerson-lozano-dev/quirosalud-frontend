@@ -28,10 +28,10 @@
     transform: scale(1.1) rotate(-10deg);
 }
 
-.bg-cyan { background-color: #17a2b8; }
+.bg-cyan { background: linear-gradient(135deg, #e85d38 0%, #f06e4b 100%); }
 .bg-green { background-color: #198754; }
 .bg-red { background-color: #dc3545; }
-.bg-blue { background-color: #0d6efd; }
+.bg-blue { background: linear-gradient(135deg, #1b3b6f 0%, #295294 100%); }
 .bg-purple { background-color: #6f42c1; }
 .bg-gray { background-color: #6c757d; }
 .bg-yellow { background-color: #ffc107; color: #212529 !important; } 
@@ -41,6 +41,6 @@
     border-bottom: 2px solid #dee2e6;
     padding-bottom: 10px;
     margin-bottom: 20px;
-    color: #495057;
+    color: #2b2d42;
     font-weight: bold;
 }

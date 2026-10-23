@@ -3,13 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth';
-import { NavbarComponent } from '../../components/navbar/navbar';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cambiar-clave',
   standalone: true,
-  imports: [FormsModule, RouterLink, NavbarComponent],
+  imports: [FormsModule, RouterLink],
   templateUrl: './cambiar-clave.html'
 })
 export class CambiarClaveComponent {

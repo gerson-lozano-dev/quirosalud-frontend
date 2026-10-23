@@ -1,23 +1,32 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
+import { CommonModule } from '@angular/common';
 import { PacienteService } from '../../services/paciente';
+import { AsistenciaService } from '../../services/asistencia';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-pacientes',
   standalone: true,
-  imports: [FormsModule], 
+  imports: [FormsModule, CommonModule], 
   templateUrl: './pacientes.html',
   styleUrl: './pacientes.css'
 })
 export class PacientesComponent implements OnInit {
   
   private pacienteService = inject(PacienteService);
+  private asistenciaService = inject(AsistenciaService);
   private cdr = inject(ChangeDetectorRef); 
   
   listaPacientes: any[] = [];
+  pacientesFiltrados: any[] = [];
+  terminoBusqueda: string = '';
+  expedienteSeleccionado: any = null;
+  cargandoExpediente: boolean = false;
 
-  // HACK SENIOR: Lista rápida para no arriesgar un error de conexión a minutos de la entrega
+  paginaActual: number = 1;
+  elementosPorPagina: number = 15;
+
   listaDistritos = [
     { codDistrito: 'D01', nombreDistrito: 'San Juan de Lurigancho' },
     { codDistrito: 'D02', nombreDistrito: 'Miraflores' },
@@ -28,7 +37,40 @@ export class PacientesComponent implements OnInit {
     { codDistrito: 'D07', nombreDistrito: 'Surco' },
     { codDistrito: 'D08', nombreDistrito: 'San Borja' },
     { codDistrito: 'D09', nombreDistrito: 'Lince' },
-    { codDistrito: 'D10', nombreDistrito: 'Comas' }
+    { codDistrito: 'D10', nombreDistrito: 'San Miguel' },
+    { codDistrito: 'D11', nombreDistrito: 'Cercado de Lima' },
+    { codDistrito: 'D12', nombreDistrito: 'Ancón' },
+    { codDistrito: 'D13', nombreDistrito: 'Barranco' },
+    { codDistrito: 'D14', nombreDistrito: 'Breña' },
+    { codDistrito: 'D15', nombreDistrito: 'Carabayllo' },
+    { codDistrito: 'D16', nombreDistrito: 'Chaclacayo' },
+    { codDistrito: 'D17', nombreDistrito: 'Chorrillos' },
+    { codDistrito: 'D18', nombreDistrito: 'Cieneguilla' },
+    { codDistrito: 'D19', nombreDistrito: 'Comas' },
+    { codDistrito: 'D20', nombreDistrito: 'El Agustino' },
+    { codDistrito: 'D21', nombreDistrito: 'Independencia' },
+    { codDistrito: 'D22', nombreDistrito: 'Jesús María' },
+    { codDistrito: 'D23', nombreDistrito: 'La Victoria' },
+    { codDistrito: 'D24', nombreDistrito: 'Lurigancho-Chosica' },
+    { codDistrito: 'D25', nombreDistrito: 'Lurín' },
+    { codDistrito: 'D26', nombreDistrito: 'Magdalena del Mar' },
+    { codDistrito: 'D27', nombreDistrito: 'Pachacámac' },
+    { codDistrito: 'D28', nombreDistrito: 'Pucusana' },
+    { codDistrito: 'D29', nombreDistrito: 'Pueblo Libre' },
+    { codDistrito: 'D30', nombreDistrito: 'Puente Piedra' },
+    { codDistrito: 'D31', nombreDistrito: 'Punta Hermosa' },
+    { codDistrito: 'D32', nombreDistrito: 'Punta Negra' },
+    { codDistrito: 'D33', nombreDistrito: 'Rímac' },
+    { codDistrito: 'D34', nombreDistrito: 'San Bartolo' },
+    { codDistrito: 'D35', nombreDistrito: 'San Juan de Miraflores' },
+    { codDistrito: 'D36', nombreDistrito: 'San Luis' },
+    { codDistrito: 'D37', nombreDistrito: 'San Martín de Porres' },
+    { codDistrito: 'D38', nombreDistrito: 'Santa Anita' },
+    { codDistrito: 'D39', nombreDistrito: 'Santa María del Mar' },
+    { codDistrito: 'D40', nombreDistrito: 'Santa Rosa' },
+    { codDistrito: 'D41', nombreDistrito: 'Surquillo' },
+    { codDistrito: 'D42', nombreDistrito: 'Villa El Salvador' },
+    { codDistrito: 'D43', nombreDistrito: 'Villa María del Triunfo' }
   ];
 
   pacienteObj = this.obtenerPacienteVacio();
@@ -39,7 +81,7 @@ export class PacientesComponent implements OnInit {
     this.cargarDistritos();
   }
 
-  cargarDistritos() {
+  cargarDistritos(): void {
     this.pacienteService.listarDistritos().subscribe({
       next: (datos) => {
         if (datos && datos.length > 0) {
@@ -47,17 +89,17 @@ export class PacientesComponent implements OnInit {
           this.cdr.detectChanges();
         }
       },
-      error: (err) => console.log('Usando distritos locales', err)
+      error: () => {}
     });
   }
 
-  prepararNuevoPaciente() {
+  prepararNuevoPaciente(): void {
     this.esEdicion = false; 
     this.pacienteObj = this.obtenerPacienteVacio(); 
     this.cdr.detectChanges(); 
   }
 
-  abrirModalEditar(pacienteFila: any) {
+  abrirModalEditar(pacienteFila: any): void {
     this.esEdicion = true; 
     this.pacienteObj = { ...pacienteFila }; 
 
@@ -71,7 +113,23 @@ export class PacientesComponent implements OnInit {
     this.cdr.detectChanges(); 
   }
 
-  obtenerPacienteVacio() {
+  verExpediente(p: any): void {
+    this.cargandoExpediente = true;
+    this.expedienteSeleccionado = { paciente: p, consultas: [], sesiones: [] };
+    this.asistenciaService.obtenerExpedienteCompleto(p.dni).subscribe({
+      next: (exp: any) => {
+        this.expedienteSeleccionado = exp;
+        this.cargandoExpediente = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargandoExpediente = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  obtenerPacienteVacio(): any {
     this.esEdicion = false; 
     return {
       idPersona: null, dni: '', nombres: '', apellidos: '', fechaNacimiento: '', sexo: 'M',
@@ -83,19 +141,80 @@ export class PacientesComponent implements OnInit {
     };
   }
 
-  cargarPacientes() {
+  cargarPacientes(): void {
     this.pacienteService.listarPacientes().subscribe({
       next: (datos) => {
-        this.listaPacientes = datos;
+        this.listaPacientes = datos || [];
+        this.filtrarPacientes();
         this.cdr.detectChanges(); 
       },
-      error: (err) => console.error('Error al cargar', err)
+      error: (err) => console.error('Error al cargar pacientes', err)
     });
   }
 
-  guardar() {
+  filtrarPacientes(): void {
+    this.paginaActual = 1;
+    if (!this.terminoBusqueda || this.terminoBusqueda.trim() === '') {
+      this.pacientesFiltrados = [...this.listaPacientes];
+      return;
+    }
+    const term = this.terminoBusqueda.toLowerCase().trim();
+    this.pacientesFiltrados = this.listaPacientes.filter(p => 
+      (p.dni && p.dni.toLowerCase().includes(term)) ||
+      (p.nombres && p.nombres.toLowerCase().includes(term)) ||
+      (p.apellidos && p.apellidos.toLowerCase().includes(term)) ||
+      (p.telefono && p.telefono.toLowerCase().includes(term)) ||
+      (p.distrito?.nombreDistrito && p.distrito.nombreDistrito.toLowerCase().includes(term)) ||
+      (p.motivoConsulta && p.motivoConsulta.toLowerCase().includes(term)) ||
+      (p.ocupacion && p.ocupacion.toLowerCase().includes(term))
+    );
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.pacientesFiltrados.length / this.elementosPorPagina) || 1;
+  }
+
+  get pacientesPaginados(): any[] {
+    const inicio = (this.paginaActual - 1) * this.elementosPorPagina;
+    return this.pacientesFiltrados.slice(inicio, inicio + this.elementosPorPagina);
+  }
+
+  get listaNumerosPaginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+
+  get indiceInicio(): number {
+    if (this.pacientesFiltrados.length === 0) return 0;
+    return (this.paginaActual - 1) * this.elementosPorPagina + 1;
+  }
+
+  get indiceFin(): number {
+    return Math.min(this.paginaActual * this.elementosPorPagina, this.pacientesFiltrados.length);
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.cdr.detectChanges();
+    }
+  }
+
+  calcularEdad(fechaNacimiento: any): string {
+    if (!fechaNacimiento) return 'N/D';
+    const cumple = new Date(fechaNacimiento);
+    if (isNaN(cumple.getTime())) return 'N/D';
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - cumple.getFullYear();
+    const m = hoy.getMonth() - cumple.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < cumple.getDate())) {
+      edad--;
+    }
+    return edad >= 0 ? `${edad} años` : 'N/D';
+  }
+
+  guardar(): void {
     if (!this.pacienteObj.email || this.pacienteObj.email === 'NO REGISTRA') {
-        this.pacienteObj.email = `paciente_${this.pacienteObj.dni}@sinregistro.com`;
+      this.pacienteObj.email = `paciente_${this.pacienteObj.dni}@sinregistro.com`;
     }
 
     if (this.esEdicion) {
@@ -111,7 +230,6 @@ export class PacientesComponent implements OnInit {
             this.pacienteObj = this.obtenerPacienteVacio();
             this.cargarPacientes();
           } else {
-            console.error('Error real al actualizar:', err);
             Swal.fire('Error', 'No se pudo actualizar.', 'error');
           }
         }
@@ -123,35 +241,21 @@ export class PacientesComponent implements OnInit {
           this.pacienteObj = this.obtenerPacienteVacio();
           this.cargarPacientes();
         },
-        error: (err) => {
-          console.error('Error al registrar:', err);
+        error: () => {
           Swal.fire('Error', 'No se pudo guardar.', 'error');
         }
       });
     }
   }
 
-  permitirSoloNumeros(event: KeyboardEvent) {
+  permitirSoloNumeros(event: KeyboardEvent): void {
     const charCode = event.key.charCodeAt(0);
     if (charCode < 48 || charCode > 57) {
       event.preventDefault();
     }
   }
 
-  exitoAlGuardar() {
-    Swal.fire({
-      title: '¡Registrado!',
-      text: 'El paciente se ha guardado exitosamente.',
-      icon: 'success',
-      confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#d63384' 
-    });
-
-    this.pacienteObj = this.obtenerPacienteVacio();
-    this.cargarPacientes(); 
-  }
-
-  eliminar(pacienteFila: any) {
+  eliminar(pacienteFila: any): void {
     Swal.fire({
       title: '¿Estás seguro?',
       text: `Vas a eliminar a ${pacienteFila.nombres} ${pacienteFila.apellidos}. ¡Esta acción no se puede deshacer!`,
@@ -169,12 +273,12 @@ export class PacientesComponent implements OnInit {
             this.cargarPacientes(); 
           },
           error: (err) => {
-            console.error('Error al eliminar:', err);
             if (err.status === 200) {
-               Swal.fire('¡Eliminado!', 'El paciente ha sido borrado del sistema.', 'success');
-               this.cargarPacientes();
+              Swal.fire('¡Eliminado!', 'El paciente ha sido borrado del sistema.', 'success');
+              this.cargarPacientes();
             } else {
-               Swal.fire('Error', 'Hubo un problema al intentar eliminar en la base de datos.', 'error');
+              const msg = err.error?.mensaje || 'Hubo un problema al intentar eliminar en la base de datos.';
+              Swal.fire('Error', msg, 'error');
             }
           }
         });

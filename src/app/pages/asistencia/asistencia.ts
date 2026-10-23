@@ -16,18 +16,26 @@ export class AsistenciaComponent {
 
   dniBusqueda: string = '';
   listaCitas: any[] = [];
-  
-  // Nuevas variables para que el doctor vea el contexto clínico del paciente
   pacienteEncontrado: any = null;
   listaConsultas: any[] = [];
   ultimoDiagnostico: any = null;
-
   busquedaRealizada: boolean = false;
-
-  // Objeto para atrapar las notas del modal y si pagó la sesión en ese momento
   citaSeleccionada: any = { idCita: null, notasAjuste: '', pagado: true };
 
-  buscarHistorial() {
+  calcularEdad(fechaNacimiento: any): string {
+    if (!fechaNacimiento) return 'N/D';
+    const cumple = new Date(fechaNacimiento);
+    if (isNaN(cumple.getTime())) return 'N/D';
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - cumple.getFullYear();
+    const m = hoy.getMonth() - cumple.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < cumple.getDate())) {
+      edad--;
+    }
+    return edad >= 0 ? `${edad} años` : 'N/D';
+  }
+
+  buscarHistorial(): void {
     if (!this.dniBusqueda || this.dniBusqueda.length !== 8) {
       Swal.fire('Atención', 'Ingrese un DNI válido de 8 dígitos.', 'warning');
       return;
@@ -39,7 +47,6 @@ export class AsistenciaComponent {
         this.listaConsultas = expediente.consultas || [];
         this.ultimoDiagnostico = this.listaConsultas.length > 0 ? this.listaConsultas[0] : null;
         this.listaCitas = expediente.sesiones || [];
-        
         this.busquedaRealizada = true;
         this.cdr.detectChanges();
       },
@@ -50,8 +57,7 @@ export class AsistenciaComponent {
     });
   }
 
-  // Prepara el modal antes de abrirlo
-  prepararAsistencia(citaFila: any) {
+  prepararAsistencia(citaFila: any): void {
     this.citaSeleccionada = { 
       idCita: citaFila.idCita, 
       notasAjuste: citaFila.notasAjuste || '',
@@ -59,7 +65,7 @@ export class AsistenciaComponent {
     };
   }
 
-  guardarAsistencia() {
+  guardarAsistencia(): void {
     this.asistenciaService.marcarAsistencia(this.citaSeleccionada.idCita, this.citaSeleccionada).subscribe({
       next: () => this.exitoAlGuardar(),
       error: (err) => {
@@ -72,13 +78,13 @@ export class AsistenciaComponent {
     });
   }
 
-  exitoAlGuardar() {
+  exitoAlGuardar(): void {
     Swal.fire({ 
       title: '¡Asistencia Marcada!', 
       text: 'La sesión y las notas de evolución han sido guardadas.', 
       icon: 'success', 
       confirmButtonColor: '#198754' 
     });
-    this.buscarHistorial(); // Refrescamos el expediente automáticamente
+    this.buscarHistorial();
   }
 }

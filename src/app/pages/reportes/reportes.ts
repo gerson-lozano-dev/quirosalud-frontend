@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common'; 
 import { ReporteService } from '../../services/reporte';
 import { Chart, registerables } from 'chart.js';
@@ -13,10 +13,10 @@ Chart.register(...registerables);
 })
 export class ReportesComponent implements OnInit {
   private reporteService = inject(ReporteService);
+  private cdr = inject(ChangeDetectorRef);
   
   public chartDistritos: any;
-  public chartTratamientos: any; // El nuevo gráfico
-  
+  public chartTratamientos: any;
   listaVentas: any[] = []; 
 
   ngOnInit(): void {
@@ -25,7 +25,7 @@ export class ReportesComponent implements OnInit {
     this.cargarHistorial(); 
   }
 
-  cargarGraficoDistritos() {
+  cargarGraficoDistritos(): void {
     this.reporteService.obtenerEstadisticaDistritos().subscribe({
       next: (datos: any[]) => {
         const etiquetas = datos.map(d => d.nombreDistrito);
@@ -38,7 +38,7 @@ export class ReportesComponent implements OnInit {
             datasets: [{
               label: 'Pacientes',
               data: cantidades,
-              backgroundColor: 'rgba(13, 110, 253, 0.7)',
+              backgroundColor: 'rgba(232, 93, 56, 0.85)',
               borderRadius: 5
             }]
           }
@@ -47,15 +47,12 @@ export class ReportesComponent implements OnInit {
     });
   }
 
-  cargarGraficoTratamientos() {
+  cargarGraficoTratamientos(): void {
     this.reporteService.obtenerEstadisticaTratamientos().subscribe({
       next: (datos: any[]) => {
-        // Leemos los 3 datos reales que vienen de tu base de datos
         const etiquetas = datos.map(d => d.nombre);
-        const cantidades = datos.map(d => d.cantidad); // Esto son las Sesiones
-        const dineros = datos.map(d => d.totalDinero); // Esto es la Plata real
-
-        // Sumamos todas las sesiones matemáticamente para sacar el 100%
+        const cantidades = datos.map(d => d.cantidad);
+        const dineros = datos.map(d => d.totalDinero);
         const totalSesionesGeneral = cantidades.reduce((a, b) => a + b, 0);
 
         this.chartTratamientos = new Chart('graficoTratamientos', {
@@ -64,7 +61,7 @@ export class ReportesComponent implements OnInit {
             labels: etiquetas,
             datasets: [{
               data: cantidades,
-              backgroundColor: ['#8b3dff', '#1a66cc', '#ff6b3b', '#109b8c', '#e6195e'],
+              backgroundColor: ['#e85d38', '#1b3b6f', '#f39c12', '#109b8c', '#6f42c1'],
               borderWidth: 0,
               hoverOffset: 8
             }]
@@ -75,14 +72,11 @@ export class ReportesComponent implements OnInit {
               legend: { position: 'bottom' },
               tooltip: {
                 callbacks: {
-                  // MAGIA PURA: Aquí construimos lo que quieres ver al pasar el mouse
                   label: function(context: any) {
                     let index = context.dataIndex;
                     let ses = cantidades[index];
                     let dinero = dineros[index];
                     let porcentaje = ((ses / totalSesionesGeneral) * 100).toFixed(1);
-                    
-                    // Va a mostrar algo como: " 60.0% (6 Sesiones) - Total: S/. 450"
                     return ` ${porcentaje}% (${ses} Sesiones) - Total: S/. ${dinero}`;
                   }
                 }
@@ -94,9 +88,15 @@ export class ReportesComponent implements OnInit {
     });
   }
 
-  cargarHistorial() {
+  cargarHistorial(): void {
     this.reporteService.obtenerHistorialVentas().subscribe({
-      next: (datos) => this.listaVentas = datos
+      next: (datos) => {
+        this.listaVentas = datos || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar historial de ventas', err);
+      }
     });
   }
 }

@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { VentaService } from '../../services/venta';
 import { PacienteService } from '../../services/paciente'; 
 import { TratamientoService } from '../../services/tratamiento';
+import { AsistenciaService } from '../../services/asistencia';
 import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common'; // Necesario para el pipe de moneda/número
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-ventas',
@@ -17,12 +18,14 @@ export class VentasComponent implements OnInit {
   private ventaService = inject(VentaService);
   private pacienteService = inject(PacienteService);
   private tratamientoService = inject(TratamientoService);
+  private asistenciaService = inject(AsistenciaService);
   private cdr = inject(ChangeDetectorRef);
 
   listaPacientes: any[] = [];
   listaTratamientos: any[] = [];
-  
-  // Quemamos el idUsuario en 1 temporalmente hasta que tengamos el Login de Spring Security
+  recetaMedica: any = null;
+  buscandoReceta: boolean = false;
+
   nuevaVenta = { 
     dniPaciente: '', 
     idTratamiento: '', 
@@ -32,53 +35,87 @@ export class VentasComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    // Lee el ID real del cajero que inició sesión
     const idGuardado = localStorage.getItem('idUsuario');
     if (idGuardado) {
       this.nuevaVenta.idUsuario = parseInt(idGuardado, 10);
     }
-    
     this.cargarCatalogos();
   }
 
-  cargarCatalogos() {
+  cargarCatalogos(): void {
     this.pacienteService.listarPacientes().subscribe(data => this.listaPacientes = data);
     this.tratamientoService.listarTratamientos().subscribe(data => this.listaTratamientos = data);
   }
 
-  // Se dispara automáticamente al cambiar el combo de Tratamiento o escribir las Sesiones
-  calcularTotal() {
+  alSeleccionarPaciente(): void {
+    this.recetaMedica = null;
+    if (!this.nuevaVenta.dniPaciente) return;
+
+    this.buscandoReceta = true;
+    this.asistenciaService.obtenerExpedienteCompleto(this.nuevaVenta.dniPaciente).subscribe({
+      next: (expediente) => {
+        this.buscandoReceta = false;
+        const consultas = expediente?.consultas || [];
+        if (consultas.length > 0) {
+          const ultima = consultas[0];
+          this.recetaMedica = ultima;
+
+          if (ultima.sesionesSugeridas !== undefined && ultima.sesionesSugeridas !== null) {
+            this.nuevaVenta.totalSesiones = ultima.sesionesSugeridas;
+          }
+
+          if (ultima.tratamientoSugerido) {
+            const match = this.listaTratamientos.find(t => 
+              t.nombre.toLowerCase().trim() === ultima.tratamientoSugerido.toLowerCase().trim() ||
+              t.nombre.toLowerCase().includes(ultima.tratamientoSugerido.toLowerCase()) ||
+              ultima.tratamientoSugerido.toLowerCase().includes(t.nombre.toLowerCase())
+            );
+            if (match) {
+              this.nuevaVenta.idTratamiento = match.idTratamiento;
+            }
+          }
+
+          this.calcularTotal();
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.buscandoReceta = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  calcularTotal(): void {
     if (!this.nuevaVenta.idTratamiento || this.nuevaVenta.totalSesiones < 1) {
       this.nuevaVenta.costoTotal = 0.0;
       return;
     }
     
-    // Buscamos el tratamiento en la lista para obtener su precio
     const tratamiento = this.listaTratamientos.find(t => t.idTratamiento == this.nuevaVenta.idTratamiento);
     if (tratamiento) {
       this.nuevaVenta.costoTotal = tratamiento.precio * this.nuevaVenta.totalSesiones;
     }
   }
 
-  guardarVenta() {
+  guardarVenta(): void {
     this.ventaService.registrarVenta(this.nuevaVenta).subscribe({
       next: (res) => {
-        // Si por algún milagro Angular logra parsear el texto de Spring Boot
-        this.exitoVenta(res);
+        const mensaje = typeof res === 'object' && res?.mensaje ? res.mensaje : (typeof res === 'string' ? res : 'Cobro registrado correctamente.');
+        this.exitoVenta(mensaje);
       },
       error: (err) => {
-        // HACK SENIOR: Atrapamos el "falso error" porque Spring Boot devuelve un String
-        if (err.status === 200) { 
-          // err.error.text contiene el String que devolviste en tu VentaRestController
-          const mensajeDelBackend = err.error.text || 'Cobro registrado correctamente.';
+        if (err.status === 200 || err.status === 201) { 
+          const mensajeDelBackend = err.error?.mensaje || err.error?.text || 'Cobro registrado correctamente.';
           this.exitoVenta(mensajeDelBackend); 
+        } else { 
+          Swal.fire('Error', 'No se pudo procesar la venta', 'error'); 
         }
-        else { Swal.fire('Error', 'No se pudo procesar la venta', 'error'); }
       }
     });
   }
 
-  exitoVenta(mensaje: string) {
+  exitoVenta(mensaje: string): void {
     Swal.fire({ 
       title: '¡Venta Exitosa!', 
       text: mensaje, 
@@ -86,9 +123,8 @@ export class VentasComponent implements OnInit {
       confirmButtonColor: '#198754' 
     });
     
-    // ARREGLO SENIOR: Volvemos a leer quién está en la caja en lugar de quemar el "1"
     const idGuardado = localStorage.getItem('idUsuario');
-    
+    this.recetaMedica = null;
     this.nuevaVenta = { 
       dniPaciente: '', 
       idTratamiento: '', 
