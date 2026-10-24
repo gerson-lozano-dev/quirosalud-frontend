@@ -1,0 +1,117 @@
+<div class="container-fluid mt-4 px-4">
+    <h2 class="text-center titulo-main mb-4 text-primary fw-bold">
+        <i class="fa-solid fa-users-gear"></i> Gestión de Usuarios y Médicos
+    </h2>
+    
+    <div class="text-end mb-3">
+        <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalUsuario" (click)="prepararNuevoUsuario()">
+            <i class="fa-solid fa-user-plus"></i> Nuevo Usuario
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombres y Apellidos</th>
+                            <th>Email (Login)</th>
+                            <th>Cargo / Rol</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (u of listaUsuarios; track u.idUsuario) {
+                            <tr class="align-middle">
+                                <td>{{ u.idUsuario }}</td>
+                                <td><strong>{{ u.nombres }} {{ u.apellidos }}</strong></td>
+                                <td>{{ u.email }}</td>
+                                <td>
+                                    <!-- Etiquetas de colores según el cargo -->
+                                    <span class="badge" 
+                                          [class.bg-danger]="u.cargo === 'ADMIN'" 
+                                          [class.bg-success]="u.cargo === 'MEDICO'" 
+                                          [class.bg-info]="u.cargo === 'ASISTENTE'">
+                                        {{ u.cargo }}
+                                    </span>
+                                </td>
+                                <td class="text-center" style="width: 120px;">
+                                    <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalUsuario" (click)="abrirModalEditar(u)">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" (click)="eliminar(u)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No hay usuarios registrados en el sistema.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Usuario -->
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-user-tie"></i> {{ esEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form #formUsuario="ngForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Nombres:</label>
+                            <input type="text" name="nombres" class="form-control" required [(ngModel)]="usuarioObj.nombres">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Apellidos:</label>
+                            <input type="text" name="apellidos" class="form-control" required [(ngModel)]="usuarioObj.apellidos">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Correo Electrónico (Login):</label>
+                        <input type="email" name="email" class="form-control" required [(ngModel)]="usuarioObj.email">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Contraseña:</label>
+                        <input type="password" name="clave" class="form-control" 
+                            [required]="!esEdicion" 
+                            [(ngModel)]="usuarioObj.clave" 
+                            [placeholder]="esEdicion ? 'Dejar en blanco para mantener la clave actual' : 'Ingrese contraseña'">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cargo / Rol:</label>
+                        <select name="cargo" class="form-select" required [(ngModel)]="usuarioObj.cargo">
+                            <option value="ASISTENTE">Asistente</option>
+                            <option value="MEDICO">Médico</option>
+                            <option value="ADMIN">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <!-- Bloqueo del botón si los campos obligatorios están vacíos -->
+                    <button type="button" class="btn btn-primary fw-bold" data-bs-dismiss="modal" [disabled]="formUsuario.invalid" (click)="guardar()">
+                        <i class="fa-solid fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
