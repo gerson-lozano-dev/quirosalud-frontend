@@ -113,12 +113,17 @@ export class PacientesComponent implements OnInit {
     this.cdr.detectChanges(); 
   }
 
-  verExpediente(p: any): void {
+verExpediente(p: any): void {
     this.cargandoExpediente = true;
     this.expedienteSeleccionado = { paciente: p, consultas: [], sesiones: [] };
     this.asistenciaService.obtenerExpedienteCompleto(p.dni).subscribe({
       next: (exp: any) => {
         this.expedienteSeleccionado = exp;
+        
+        if (this.expedienteSeleccionado?.paciente && !this.expedienteSeleccionado.paciente.distrito) {
+          this.expedienteSeleccionado.paciente.distrito = p.distrito;
+        }
+
         this.cargandoExpediente = false;
         this.cdr.detectChanges();
       },
