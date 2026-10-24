@@ -1,0 +1,9 @@
+.card {
+    background: #ffffff;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(192, 36, 37, 0.4);
+}
