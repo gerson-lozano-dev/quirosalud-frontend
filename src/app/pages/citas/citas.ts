@@ -21,6 +21,7 @@ export class CitasComponent implements OnInit {
 
   listaPendientes: any[] = [];
   listaTratamientos: any[] = [];
+  listaPacientes: any[] = [];
   nuevaCita = { dniPaciente: '', fecha: '', hora: '', motivo: '', estado: 'PENDIENTE' };
   citaAtencion: any = { idConsulta: null, diagnostico: '', tratamientoSugerido: '', sesionesSugeridas: 1, motivo: '' };
   pacienteAtencion: any = null;
@@ -30,7 +31,18 @@ export class CitasComponent implements OnInit {
   ngOnInit(): void {
     this.cargarPendientes();
     this.cargarTratamientos();
+    this.cargarPacientes();
     this.setFechaActual();
+  }
+
+  cargarPacientes(): void {
+    this.pacienteService.listarPacientes().subscribe({
+      next: (datos: any) => {
+        this.listaPacientes = datos || [];
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => console.error('Error al cargar la lista de pacientes', err)
+    });
   }
 
   cargarTratamientos(): void {

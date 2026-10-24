@@ -4,17 +4,25 @@
     </h2>
 
     <!-- BARRA DE BÚSQUEDA -->
-    <div class="card shadow-sm border-primary mb-4">
+<div class="card shadow-sm border-primary mb-4">
         <div class="card-body">
             <form class="row g-3 align-items-center justify-content-center" (submit)="buscarHistorial(); $event.preventDefault()">
                 <div class="col-auto">
-                    <label class="col-form-label fw-bold">Ingrese DNI del Paciente:</label>
+                    <label class="col-form-label fw-bold">Seleccione Paciente:</label>
                 </div>
-                <div class="col-md-3">
-                    <input type="text" name="dni" class="form-control" placeholder="Ej: 76956895" maxlength="8" required [(ngModel)]="dniBusqueda">
+                <div class="col-md-5">
+                    <!-- ComboBox que carga los pacientes ordenados por Apellidos y DNI -->
+                    <select name="dni" class="form-select" required [(ngModel)]="dniBusqueda">
+                        <option value="" disabled selected>-- Seleccione un paciente --</option>
+                        @for (p of listaPacientes; track p.dni) {
+                            <option [value]="p.dni">
+                                {{ p.apellidos }}, {{ p.nombres }} (DNI: {{ p.dni }})
+                            </option>
+                        }
+                    </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary fw-bold">
+                    <button type="submit" class="btn btn-primary fw-bold" [disabled]="!dniBusqueda">
                         <i class="fa-solid fa-search"></i> Buscar Historial
                     </button>
                 </div>

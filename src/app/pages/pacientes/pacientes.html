@@ -220,7 +220,7 @@
                 <div class="row mb-3 mt-3">
                     <div class="col-md-8">
                         <label class="fw-bold">Motivo de Consulta (Queja Principal):</label>
-                        <input type="text" class="form-control" name="motivoConsulta" required placeholder="Ej: Dolor lumbar fuerte..." [(ngModel)]="pacienteObj.motivoConsulta">
+                        <input type="text" class="form-control" name="motivoConsulta" required placeholder="Ej: Dolor lumbar fuerte..." min="0" max="20" [(ngModel)]="pacienteObj.motivoConsulta">
                     </div>
                     <div class="col-md-4">
                         <label class="fw-bold text-danger">Escala Dolor (0-10):</label>

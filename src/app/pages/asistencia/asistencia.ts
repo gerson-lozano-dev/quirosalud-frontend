@@ -1,26 +1,46 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { AsistenciaService } from '../../services/asistencia';
+import { PacienteService } from '../../services/paciente';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-asistencia',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './asistencia.html'
 })
-export class AsistenciaComponent {
+export class AsistenciaComponent implements OnInit {
 
   private asistenciaService = inject(AsistenciaService);
+  private pacienteService = inject(PacienteService);
   private cdr = inject(ChangeDetectorRef);
 
   dniBusqueda: string = '';
+  listaPacientes: any[] = [];
   listaCitas: any[] = [];
   pacienteEncontrado: any = null;
   listaConsultas: any[] = [];
   ultimoDiagnostico: any = null;
   busquedaRealizada: boolean = false;
   citaSeleccionada: any = { idCita: null, notasAjuste: '', pagado: true };
+
+  ngOnInit(): void {
+    this.cargarPacientes();
+  }
+
+  cargarPacientes(): void {
+    this.pacienteService.listarPacientes().subscribe({
+      next: (datos) => {
+        this.listaPacientes = datos || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar la lista de pacientes', err);
+      }
+    });
+  }
 
   calcularEdad(fechaNacimiento: any): string {
     if (!fechaNacimiento) return 'N/D';

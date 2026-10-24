@@ -12,7 +12,14 @@
             <form #formCita="ngForm" class="row g-3">
                 <div class="col-md-3">
                     <label class="fw-bold">DNI Paciente:</label>
-                    <input type="text" name="dni" class="form-control" maxlength="8" required [(ngModel)]="nuevaCita.dniPaciente" placeholder="Ej: 77889900">
+                    <select name="dni" class="form-select" required [(ngModel)]="nuevaCita.dniPaciente">
+                        <option value="" disabled selected>-- Seleccione paciente --</option>
+                        @for (p of listaPacientes; track p.dni) {
+                            <option [value]="p.dni">
+                                {{ p.apellidos }}, {{ p.nombres }} ({{ p.dni }})
+                            </option>
+                        }
+                    </select>
                 </div>
                 <div class="col-md-3">
                     <label class="fw-bold">Fecha:</label>
@@ -28,7 +35,7 @@
                 </div>
                 <div class="col-12 text-end">
                     <button class="btn btn-primary fw-bold" [disabled]="formCita.invalid" (click)="agendarCita()">
-                        <i class="fa-solid fa-save"></i> Agendar Paciente
+                        <i class="fa-solid fa-save"></i> Agendar Cita
                     </button>
                 </div>
             </form>
@@ -58,7 +65,7 @@
                                 <td><i class="fa-regular fa-clock text-primary"></i> <strong>{{ c.hora }}</strong></td>
                                 <td>
                                     <strong>{{ c.paciente?.apellidos ? (c.paciente.apellidos + ', ' + c.paciente.nombres) : (c.paciente?.nombres || 'Paciente') }}</strong> 
-                                    <br><small class="text-white-50">DNI: {{ c.dniPaciente }} | Edad: {{ calcularEdad(c.paciente?.fechaNacimiento) }}</small>
+                                    <br><small class="text-muted">DNI: {{ c.dniPaciente }} | Edad: {{ calcularEdad(c.paciente?.fechaNacimiento) }}</small>
                                 </td>
                                 <td>
                                     <span>{{ c.motivo }}</span>

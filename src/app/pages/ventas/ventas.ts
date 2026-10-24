@@ -11,7 +11,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-ventas',
   standalone: true,
   imports: [FormsModule, CommonModule],
-  templateUrl: './ventas.html'
+  templateUrl: './ventas.html',
+  styleUrl: './ventas.css'
 })
 export class VentasComponent implements OnInit {
 

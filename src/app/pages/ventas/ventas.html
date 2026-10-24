@@ -1,20 +1,20 @@
-<div class="container-fluid mt-4 px-4" style="padding-bottom: 150px;">
+<div class="container-fluid ventas-page mt-4 px-4">
     <h2 class="text-success mb-4 fw-bold text-center">
         <i class="fa-solid fa-cash-register"></i> Caja: Venta de Tratamientos
     </h2>
 
     <div class="row">
-        <div class="col-md-8 mx-auto">
+        <div class="col-md-8 mx-auto ventas-container">
             <!-- Tarjeta de venta -->
-            <div class="card shadow-lg border-0 rounded-4" style="border-left: 6px solid #198754; background-color: #212529; overflow: visible !important;">
-                <div class="card-body p-5" style="overflow: visible !important;">
+            <div class="card venta-card border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
                     
                     <!-- Formulario de venta -->
                     <form (ngSubmit)="guardarVenta()" #ventaForm="ngForm" style="overflow: visible !important;">
                         
                         <!-- Paciente -->
                         <div class="mb-4" style="position: relative; z-index: 1000;">
-                            <label class="fw-bold mb-2 text-white">Paciente:</label>
+                            <label class="form-label fw-bold mb-2">Paciente:</label>
                             <select class="form-control form-control-lg shadow-sm" name="dniPaciente" [(ngModel)]="nuevaVenta.dniPaciente" (change)="alSeleccionarPaciente()" required style="cursor: pointer;">
                                 <option value="" disabled selected>-- Seleccione el Paciente --</option>
                                 
@@ -32,23 +32,23 @@
 
                             @if (recetaMedica) {
                                 @if (recetaMedica.sesionesSugeridas === 0) {
-                                    <div class="alert alert-secondary border-info mt-3 d-flex align-items-start bg-dark text-white">
+                                    <div class="alert alert-secondary venta-alert-info mt-3 d-flex align-items-start">
                                         <i class="fa-solid fa-shield-heart text-info fs-3 me-3 mt-1"></i>
                                         <div>
                                             <strong class="text-info"><i class="fa-solid fa-circle-check"></i> Alta Médica Preventiva:</strong>
-                                            <p class="mb-1 small text-white-50">{{ recetaMedica.diagnostico || 'Evaluación sin hallazgos patológicos.' }}</p>
+                                            <p class="mb-1 small venta-muted-text">{{ recetaMedica.diagnostico || 'Evaluación sin hallazgos patológicos.' }}</p>
                                             <span class="badge bg-secondary">0 Sesiones - Paciente no requiere tratamiento de pago</span>
                                         </div>
                                     </div>
                                 } @else {
-                                    <div class="alert alert-success border-success mt-3 d-flex align-items-start bg-dark text-white shadow-sm">
+                                    <div class="alert alert-success venta-alert-success mt-3 d-flex align-items-start">
                                         <i class="fa-solid fa-file-waveform text-success fs-3 me-3 mt-1"></i>
                                         <div class="flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <strong class="text-success"><i class="fa-solid fa-check-circle"></i> Orden Médica Encontrada:</strong>
                                                 <span class="badge bg-success fs-6">{{ recetaMedica.sesionesSugeridas }} Sesiones Prescritas</span>
                                             </div>
-                                            <p class="mb-1 small text-white-50"><strong>Diagnóstico:</strong> {{ recetaMedica.diagnostico }}</p>
+                                            <p class="mb-1 small venta-muted-text"><strong>Diagnóstico:</strong> {{ recetaMedica.diagnostico }}</p>
                                             <small class="text-info">
                                                 <i class="fa-solid fa-stethoscope me-1"></i>
                                                 Tratamiento prescrito: <strong>{{ recetaMedica.tratamientoSugerido || 'Tratamiento Quiropráctico' }}</strong> (Preseleccionado automáticamente)
@@ -62,7 +62,7 @@
                         <div class="row mb-4" style="position: relative; z-index: 900;">
                             <!-- Tratamiento -->
                             <div class="col-md-8 mb-3 mb-md-0">
-                                <label class="fw-bold mb-2 text-white">Tratamiento a adquirir:</label>
+                                <label class="form-label fw-bold mb-2">Tratamiento a adquirir:</label>
                                 <select class="form-control form-control-lg shadow-sm" name="idTratamiento" [(ngModel)]="nuevaVenta.idTratamiento" (change)="calcularTotal()" required style="cursor: pointer;">
                                     <option value="" disabled selected>-- Seleccione un Servicio --</option>
                                     
@@ -74,22 +74,22 @@
 
                             <!-- Sesiones -->
                             <div class="col-md-4">
-                                <label class="fw-bold mb-2 text-white">N° de Sesiones:</label>
+                                <label class="form-label fw-bold mb-2">N° de Sesiones:</label>
                                 <input type="number" class="form-control form-control-lg text-center shadow-sm" name="totalSesiones" [(ngModel)]="nuevaVenta.totalSesiones" (input)="calcularTotal()" min="1" max="50" required>
                             </div>
                         </div>
 
                         <!-- Total a cobrar -->
-                        <div class="card mb-4 rounded-3 shadow-sm" style="background-color: #1a1d20; border: 1px solid #198754; position: relative; z-index: 1;">
+                        <div class="card venta-total-card mb-4 rounded-3">
                             <div class="card-body text-center py-4">
-                                <h5 class="text-muted mb-2 fw-bold">TOTAL A COBRAR</h5>
-                                <h1 class="display-4 fw-bold text-success m-0">S/. {{ nuevaVenta.costoTotal | number:'1.2-2' }}</h1>
+                                <h5 class="venta-total-label mb-2 fw-bold">TOTAL A COBRAR</h5>
+                                <h1 class="display-4 fw-bold venta-total-amount m-0">S/. {{ nuevaVenta.costoTotal | number:'1.2-2' }}</h1>
                             </div>
                         </div>
 
                         <!-- Botón de pago -->
-                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 rounded-pill shadow" 
-                                [disabled]="ventaForm.invalid || nuevaVenta.costoTotal <= 0" style="position: relative; z-index: 1;">
+                        <button type="submit" class="btn btn-success venta-submit-btn btn-lg w-100 fw-bold py-3 rounded-pill"
+                                [disabled]="ventaForm.invalid || nuevaVenta.costoTotal <= 0">
                             <i class="fa-solid fa-check-circle"></i> EMITIR COMPROBANTE Y GENERAR CITAS
                         </button>
 
