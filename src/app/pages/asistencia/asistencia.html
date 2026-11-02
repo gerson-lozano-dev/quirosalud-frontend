@@ -3,19 +3,26 @@
         <i class="fa-solid fa-calendar-check"></i> Control de Sesiones y Asistencia
     </h2>
 
-    <!-- BARRA DE BÚSQUEDA -->
+    <!-- BARRA DE SELECCIÓN Y BÚSQUEDA -->
     <div class="card shadow-sm border-primary mb-4">
         <div class="card-body">
             <form class="row g-3 align-items-center justify-content-center" (submit)="buscarHistorial(); $event.preventDefault()">
                 <div class="col-auto">
-                    <label class="col-form-label fw-bold">Ingrese DNI del Paciente:</label>
+                    <label class="col-form-label fw-bold">Seleccione Paciente:</label>
                 </div>
-                <div class="col-md-3">
-                    <input type="text" name="dni" class="form-control" placeholder="Ej: 76956895" maxlength="8" required [(ngModel)]="dniBusqueda">
+                <div class="col-md-5">
+                    <select name="dni" class="form-select" required [(ngModel)]="dniBusqueda">
+                        <option value="" disabled selected>-- Seleccione un paciente --</option>
+                        @for (p of listaPacientes; track p.dni) {
+                            <option [value]="p.dni">
+                                {{ p.apellidos }}, {{ p.nombres }} (DNI: {{ p.dni }})
+                            </option>
+                        }
+                    </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary fw-bold">
-                        <i class="fa-solid fa-search"></i> Buscar Historial
+                    <button type="submit" class="btn btn-primary fw-bold" [disabled]="!dniBusqueda">
+                        <i class="fa-solid fa-search"></i> Ver Historial
                     </button>
                 </div>
             </form>
@@ -70,6 +77,7 @@
                                 <tr>
                                     <th># Sesión (ID)</th>
                                     <th>Hoja de Pago</th>
+                                    <th>Fecha y Hora</th>
                                     <th>Notas / Observaciones</th>
                                     <th>Estado</th>
                                     <th>Acción</th>
@@ -81,8 +89,21 @@
                                         <td><strong>Sesión {{ c.numeroSesion || c.idCita }}</strong></td>
                                         
                                         <!-- Mostramos el número de comprobante asignado en la venta -->
-                                        <td>{{ c.nroHp || c.hojaPago?.nroHp || 'N/A' }}</td>
+                                        <td><span class="badge bg-dark-subtle text-dark border">{{ c.nroHp || c.hojaPago?.nroHp || 'N/A' }}</span></td>
                                         
+                                        <td>
+                                            @if (c.fecha) {
+                                                <div class="fw-bold text-dark small">
+                                                    <i class="fa-regular fa-calendar text-primary me-1"></i>{{ formatearFecha(c.fecha) }}
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="fa-regular fa-clock text-success me-1"></i>{{ c.hora ? c.hora.substring(0, 5) : '09:00' }}
+                                                </small>
+                                            } @else {
+                                                <span class="badge bg-light text-muted border">Por programar</span>
+                                            }
+                                        </td>
+
                                         <td class="text-start">{{ c.notasAjuste || 'Sin notas' }}</td>
                                         
                                         <td>

@@ -20,4 +20,12 @@ export class ReporteService {
   obtenerEstadisticaTratamientos(): Observable<any> {
     return this.http.get(`${this.apiUrl}/tratamientos-vendidos`);
   }
+
+  obtenerKpis(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/kpis`);
+  }
+
+  obtenerCumplimiento(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/cumplimiento-citas`);
+  }
 }

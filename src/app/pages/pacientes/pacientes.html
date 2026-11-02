@@ -63,7 +63,7 @@
                                     (click)="verExpediente(p)">
                                 <i class="fa-solid fa-folder-open"></i>
                             </button>
-                            <button class="btn btn-primary btn-sm me-1" 
+                            <button class="btn btn-warning btn-sm me-1 text-dark" 
                                     title="Editar datos personales"
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalPaciente" 
@@ -312,7 +312,9 @@
                     <small class="text-muted ms-1">({{ expedienteSeleccionado.paciente.fechaNacimiento | date:'dd/MM/yyyy' }})</small>
                   }
                 </div>
-                <div class="col-md-3"><strong>Sexo:</strong> {{ expedienteSeleccionado.paciente.sexo || 'N/D' }}</div>
+                <div class="col-md-3">
+                  <strong>Sexo:</strong> {{ expedienteSeleccionado.paciente.sexo === 'M' ? 'Masculino' : (expedienteSeleccionado.paciente.sexo === 'F' ? 'Femenino' : (expedienteSeleccionado.paciente.sexo || 'N/D')) }}
+                </div>
                 <div class="col-md-3"><strong>Ocupación:</strong> {{ expedienteSeleccionado.paciente.ocupacion || 'No especificada' }}</div>
               </div>
               <div class="row small">
@@ -322,7 +324,12 @@
               </div>
               <hr class="my-2">
               <div class="row small text-muted">
-                <div class="col-md-3"><strong>Nivel Dolor (EVA):</strong> <span class="badge bg-warning text-dark">{{ expedienteSeleccionado.paciente.escalaDolor || 0 }}/10</span></div>
+                <div class="col-md-3">
+                  <strong>Nivel Dolor (EVA):</strong> 
+                  <span class="badge" [ngClass]="(expedienteSeleccionado.paciente.escalaDolor >= 7) ? 'bg-danger' : (expedienteSeleccionado.paciente.escalaDolor >= 4 ? 'bg-warning text-dark' : 'bg-secondary')">
+                    {{ expedienteSeleccionado.paciente.escalaDolor != null ? expedienteSeleccionado.paciente.escalaDolor : 0 }}/10
+                  </span>
+                </div>
                 <div class="col-md-3"><strong>Asma:</strong> {{ expedienteSeleccionado.paciente.tieneAsma ? 'Sí' : 'No' }}</div>
                 <div class="col-md-3"><strong>Diabetes:</strong> {{ expedienteSeleccionado.paciente.tieneDiabetes ? 'Sí' : 'No' }}</div>
                 <div class="col-md-3"><strong>Alergias:</strong> {{ expedienteSeleccionado.paciente.tieneAlergias ? 'Sí' : 'No' }}</div>
@@ -350,7 +357,7 @@
                 <tbody>
                   @for (c of expedienteSeleccionado.consultas; track c.idConsulta) {
                     <tr>
-                      <td>{{ c.fecha | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ formatearFecha(c.fecha) }}</td>
                       <td>{{ c.motivo }}</td>
                       <td class="fw-semibold">{{ c.diagnostico || 'Pendiente de diagnóstico' }}</td>
                       <td>{{ c.tratamientoSugerido || 'No especificado' }}</td>
@@ -387,7 +394,7 @@
                     <tr>
                       <td class="fw-bold">Sesión {{ s.numeroSesion || s.idCita }}</td>
                       <td>{{ s.nroHp || 'N/A' }}</td>
-                      <td>{{ (s.fecha | date:'dd/MM/yyyy') || 'Por programar' }}</td>
+                      <td>{{ formatearFecha(s.fecha) }}</td>
                       <td class="text-start">{{ s.notasAjuste || 'Sin observaciones registradas' }}</td>
                       <td>
                         @if (s.asistio) {

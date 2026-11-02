@@ -1,0 +1,120 @@
+/* Estilos del Módulo de Reportes y Finanzas */
+
+.reportes-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* KPI Cards */
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+  border-radius: 1rem;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.kpi-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Tipografía y tamaños */
+.fs-7 {
+  font-size: 0.78rem;
+}
+
+/* Tablas y Badges */
+.table th {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-top: none;
+  background-color: #f1f5f9;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Botones de acción */
+.btn-primary {
+  background-color: #e85d38;
+  border-color: #e85d38;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: #c94926 !important;
+  border-color: #c94926 !important;
+}
+
+.btn-outline-primary {
+  color: #e85d38;
+  border-color: #e85d38;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary.active {
+  background-color: #e85d38;
+  border-color: #e85d38;
+  color: #ffffff;
+}
+
+/* Badges con fondo tenue */
+.bg-success-subtle {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+}
+
+.text-success {
+  color: #10b981 !important;
+}
+
+.border-success-subtle {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.bg-danger-subtle {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+}
+
+.text-danger {
+  color: #ef4444 !important;
+}
+
+.border-danger-subtle {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+.bg-primary-subtle {
+  background-color: rgba(27, 59, 111, 0.10) !important;
+}
+
+.text-primary {
+  color: #1b3b6f !important;
+}
+
+.border-primary-subtle {
+  border-color: rgba(27, 59, 111, 0.2) !important;
+}
+
+.bg-warning-subtle {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+}
+
+.text-warning-emphasis {
+  color: #d97706 !important;
+}
+
+.bg-info-subtle {
+  background-color: rgba(6, 182, 212, 0.12) !important;
+}
+
+.text-info-emphasis {
+  color: #0891b2 !important;
+}

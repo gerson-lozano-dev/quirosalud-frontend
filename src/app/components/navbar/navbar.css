@@ -25,11 +25,16 @@
 .ventas-link {
     color: #ffffff !important;
     border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+}
+
+.ventas-link:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .navbar-nav .ventas-link.active {
     background-color: #ffffff !important;
-    color: #198754 !important;
+    color: #c02425 !important;
     border-color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(192, 36, 37, 0.2);
 }

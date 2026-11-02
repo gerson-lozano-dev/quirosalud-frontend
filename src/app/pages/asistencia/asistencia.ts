@@ -1,19 +1,23 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsistenciaService } from '../../services/asistencia';
+import { PacienteService } from '../../services/paciente';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-asistencia',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './asistencia.html'
 })
-export class AsistenciaComponent {
+export class AsistenciaComponent implements OnInit {
 
   private asistenciaService = inject(AsistenciaService);
+  private pacienteService = inject(PacienteService);
   private cdr = inject(ChangeDetectorRef);
 
+  listaPacientes: any[] = [];
   dniBusqueda: string = '';
   listaCitas: any[] = [];
   pacienteEncontrado: any = null;
@@ -21,6 +25,39 @@ export class AsistenciaComponent {
   ultimoDiagnostico: any = null;
   busquedaRealizada: boolean = false;
   citaSeleccionada: any = { idCita: null, notasAjuste: '', pagado: true };
+
+  ngOnInit(): void {
+    this.cargarPacientes();
+  }
+
+  cargarPacientes(): void {
+    this.pacienteService.listarPacientes().subscribe({
+      next: (datos) => {
+        this.listaPacientes = datos || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar la lista de pacientes', err);
+      }
+    });
+  }
+
+  formatearFecha(fecha: any): string {
+    if (!fecha) return 'Por programar';
+    if (typeof fecha === 'string') {
+      const soloFecha = fecha.split('T')[0];
+      const partes = soloFecha.split('-');
+      if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+    }
+    const d = new Date(fecha);
+    if (isNaN(d.getTime())) return 'Por programar';
+    const dia = String(d.getUTCDate()).padStart(2, '0');
+    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const anio = d.getUTCFullYear();
+    return `${dia}/${mes}/${anio}`;
+  }
 
   calcularEdad(fechaNacimiento: any): string {
     if (!fechaNacimiento) return 'N/D';
@@ -43,10 +80,28 @@ export class AsistenciaComponent {
 
     this.asistenciaService.obtenerExpedienteCompleto(this.dniBusqueda).subscribe({
       next: (expediente) => {
-        this.pacienteEncontrado = expediente.paciente;
+        const pacienteLista = this.listaPacientes.find(p => p.dni === this.dniBusqueda);
+        const pacienteFinal = { ...(pacienteLista || {}), ...(expediente?.paciente || {}) };
+        if (pacienteLista) {
+          for (const k of Object.keys(pacienteLista)) {
+            if (pacienteFinal[k] === null || pacienteFinal[k] === undefined || pacienteFinal[k] === '') {
+              if (pacienteLista[k] !== null && pacienteLista[k] !== undefined && pacienteLista[k] !== '') {
+                pacienteFinal[k] = pacienteLista[k];
+              }
+            }
+          }
+        }
+        this.pacienteEncontrado = pacienteFinal;
         this.listaConsultas = expediente.consultas || [];
         this.ultimoDiagnostico = this.listaConsultas.length > 0 ? this.listaConsultas[0] : null;
-        this.listaCitas = expediente.sesiones || [];
+        
+        const sesiones = expediente.sesiones || [];
+        sesiones.sort((a: any, b: any) => {
+          if (a.nroHp !== b.nroHp) return (a.nroHp || '').localeCompare(b.nroHp || '');
+          return (a.numeroSesion || 0) - (b.numeroSesion || 0);
+        });
+        this.listaCitas = sesiones;
+
         this.busquedaRealizada = true;
         this.cdr.detectChanges();
       },

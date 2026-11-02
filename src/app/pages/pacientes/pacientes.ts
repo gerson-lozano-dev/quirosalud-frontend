@@ -118,7 +118,26 @@ export class PacientesComponent implements OnInit {
     this.expedienteSeleccionado = { paciente: p, consultas: [], sesiones: [] };
     this.asistenciaService.obtenerExpedienteCompleto(p.dni).subscribe({
       next: (exp: any) => {
-        this.expedienteSeleccionado = exp;
+        // Aseguramos que la ficha contenga todos los datos completos del paciente
+        const pacienteBase = { ...p };
+        const pacienteRemoto = exp?.paciente || {};
+
+        for (const [key, value] of Object.entries(pacienteRemoto)) {
+          if (value !== null && value !== undefined && value !== '') {
+            pacienteBase[key] = value;
+          }
+        }
+
+        // Asegurar que el objeto distrito esté completo
+        if (!pacienteBase.distrito || !pacienteBase.distrito.nombreDistrito) {
+          pacienteBase.distrito = p.distrito;
+        }
+
+        this.expedienteSeleccionado = {
+          paciente: pacienteBase,
+          consultas: exp?.consultas || [],
+          sesiones: exp?.sesiones || []
+        };
         this.cargandoExpediente = false;
         this.cdr.detectChanges();
       },
@@ -197,6 +216,23 @@ export class PacientesComponent implements OnInit {
       this.paginaActual = pagina;
       this.cdr.detectChanges();
     }
+  }
+
+  formatearFecha(fecha: any): string {
+    if (!fecha) return 'Por programar';
+    if (typeof fecha === 'string') {
+      const soloFecha = fecha.split('T')[0];
+      const partes = soloFecha.split('-');
+      if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+    }
+    const d = new Date(fecha);
+    if (isNaN(d.getTime())) return 'Por programar';
+    const dia = String(d.getUTCDate()).padStart(2, '0');
+    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const anio = d.getUTCFullYear();
+    return `${dia}/${mes}/${anio}`;
   }
 
   calcularEdad(fechaNacimiento: any): string {

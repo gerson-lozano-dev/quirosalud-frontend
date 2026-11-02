@@ -1,55 +1,102 @@
-<div class="container-fluid mt-4 px-4" style="padding-bottom: 150px;">
-    <h2 class="text-success mb-4 fw-bold text-center">
-        <i class="fa-solid fa-cash-register"></i> Caja: Venta de Tratamientos
+<div class="container-fluid ventas-page mt-4 px-4">
+    <h2 class="mb-4 fw-bold text-center titulo-ventas">
+        <i class="fa-solid fa-cash-register me-2"></i> Caja: Venta de Tratamientos y Emisión de Comprobante
     </h2>
 
     <div class="row">
-        <div class="col-md-8 mx-auto">
+        <div class="col-md-9 col-lg-8 mx-auto ventas-container">
             <!-- Tarjeta de venta -->
-            <div class="card shadow-lg border-0 rounded-4" style="border-left: 6px solid #198754; background-color: #212529; overflow: visible !important;">
-                <div class="card-body p-5" style="overflow: visible !important;">
+            <div class="card venta-card border-0 rounded-4 shadow-sm mb-5">
+                <div class="card-body p-4 p-md-5">
                     
                     <!-- Formulario de venta -->
-                    <form (ngSubmit)="guardarVenta()" #ventaForm="ngForm" style="overflow: visible !important;">
+                    <form (ngSubmit)="guardarVenta()" #ventaForm="ngForm">
                         
-                        <!-- Paciente -->
-                        <div class="mb-4" style="position: relative; z-index: 1000;">
-                            <label class="fw-bold mb-2 text-white">Paciente:</label>
-                            <select class="form-control form-control-lg shadow-sm" name="dniPaciente" [(ngModel)]="nuevaVenta.dniPaciente" (change)="alSeleccionarPaciente()" required style="cursor: pointer;">
-                                <option value="" disabled selected>-- Seleccione el Paciente --</option>
-                                
-                                @for (p of listaPacientes; track p.dni) {
-                                    <option [value]="p.dni">{{ p.dni }} - {{ p.apellidos }}, {{ p.nombres }}</option>
+                        <!-- PACIENTE (Selector con buscador inteligente) -->
+                        <div class="mb-4 position-relative">
+                            <label class="form-label fw-bold mb-2">
+                                <i class="fa-solid fa-user me-1 text-danger"></i> Paciente (Buscar por DNI o Nombre):
+                            </label>
+                            
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-muted">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                                <input type="text" 
+                                    class="form-control border-start-0" 
+                                    name="busquedaPacienteCaja"
+                                    placeholder="Escriba DNI o nombres del paciente..." 
+                                    [(ngModel)]="textoBusquedaPaciente"
+                                    (input)="alEscribirPaciente(textoBusquedaPaciente)"
+                                    (focus)="mostrarDropdownPacientes = true"
+                                    (blur)="cerrarDropdownConRetraso()"
+                                    autocomplete="off">
+                                @if (nuevaVenta.dniPaciente || textoBusquedaPaciente) {
+                                    <button class="btn btn-outline-secondary border" type="button" (click)="limpiarPaciente()" title="Limpiar paciente">
+                                        <i class="fa-solid fa-xmark text-danger"></i>
+                                    </button>
+                                } @else {
+                                    <button class="btn btn-outline-secondary border" type="button" (click)="toggleDropdown()" title="Desplegar lista de pacientes">
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </button>
                                 }
-                            </select>
+                            </div>
+
+                            <!-- Menú flotante de pacientes -->
+                            @if (mostrarDropdownPacientes) {
+                                <div class="list-group position-absolute w-100 shadow-lg mt-1 border" 
+                                     style="max-height: 250px; overflow-y: auto; z-index: 1050; border-radius: 10px; background: white;">
+                                    @for (p of pacientesFiltrados; track p.dni) {
+                                        <button type="button" 
+                                            class="list-group-item list-group-item-action py-2 px-3 d-flex justify-content-between align-items-center"
+                                            [class.bg-danger-subtle]="nuevaVenta.dniPaciente === p.dni"
+                                            (mousedown)="seleccionarPaciente(p)">
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ p.apellidos }}, {{ p.nombres }}</div>
+                                                <small class="text-muted">
+                                                    <i class="fa-solid fa-id-card me-1"></i>DNI: <strong>{{ p.dni }}</strong>
+                                                    @if (p.telefono) { <span class="ms-2">| <i class="fa-solid fa-phone me-1"></i>{{ p.telefono }}</span> }
+                                                </small>
+                                            </div>
+                                            @if (nuevaVenta.dniPaciente === p.dni) {
+                                                <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-check"></i></span>
+                                            }
+                                        </button>
+                                    } @empty {
+                                        <div class="p-3 text-center text-muted small">
+                                            <i class="fa-solid fa-user-slash me-1"></i> No se encontró ningún paciente con ese criterio.
+                                        </div>
+                                    }
+                                </div>
+                            }
 
                             @if (buscandoReceta) {
-                                <div class="text-info small mt-2 d-flex align-items-center">
+                                <div class="text-danger small mt-2 d-flex align-items-center">
                                     <div class="spinner-border spinner-border-sm me-2"></div>
-                                    <span>Verificando receta u orden médica previa...</span>
+                                    <span>Verificando receta médica / diagnóstico previo...</span>
                                 </div>
                             }
 
                             @if (recetaMedica) {
                                 @if (recetaMedica.sesionesSugeridas === 0) {
-                                    <div class="alert alert-secondary border-info mt-3 d-flex align-items-start bg-dark text-white">
-                                        <i class="fa-solid fa-shield-heart text-info fs-3 me-3 mt-1"></i>
+                                    <div class="alert venta-alert-info mt-3 d-flex align-items-start">
+                                        <i class="fa-solid fa-shield-heart fs-3 me-3 mt-1" style="color: #2563eb;"></i>
                                         <div>
-                                            <strong class="text-info"><i class="fa-solid fa-circle-check"></i> Alta Médica Preventiva:</strong>
-                                            <p class="mb-1 small text-white-50">{{ recetaMedica.diagnostico || 'Evaluación sin hallazgos patológicos.' }}</p>
+                                            <strong style="color: #1e40af;"><i class="fa-solid fa-circle-check me-1"></i> Alta Médica Preventiva:</strong>
+                                            <p class="mb-1 small venta-muted-text">{{ recetaMedica.diagnostico || 'Evaluación sin hallazgos patológicos.' }}</p>
                                             <span class="badge bg-secondary">0 Sesiones - Paciente no requiere tratamiento de pago</span>
                                         </div>
                                     </div>
                                 } @else {
-                                    <div class="alert alert-success border-success mt-3 d-flex align-items-start bg-dark text-white shadow-sm">
-                                        <i class="fa-solid fa-file-waveform text-success fs-3 me-3 mt-1"></i>
+                                    <div class="alert venta-alert-success mt-3 d-flex align-items-start shadow-sm">
+                                        <i class="fa-solid fa-file-waveform fs-3 me-3 mt-1" style="color: #c02425;"></i>
                                         <div class="flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <strong class="text-success"><i class="fa-solid fa-check-circle"></i> Orden Médica Encontrada:</strong>
-                                                <span class="badge bg-success fs-6">{{ recetaMedica.sesionesSugeridas }} Sesiones Prescritas</span>
+                                                <strong style="color: #991b1b;"><i class="fa-solid fa-check-circle me-1"></i> Orden Médica Encontrada:</strong>
+                                                <span class="badge" style="background-color: #c02425; font-size: 0.85rem;">{{ recetaMedica.sesionesSugeridas }} Sesiones Prescritas</span>
                                             </div>
-                                            <p class="mb-1 small text-white-50"><strong>Diagnóstico:</strong> {{ recetaMedica.diagnostico }}</p>
-                                            <small class="text-info">
+                                            <p class="mb-1 small venta-muted-text"><strong>Diagnóstico:</strong> {{ recetaMedica.diagnostico }}</p>
+                                            <small style="color: #c02425;">
                                                 <i class="fa-solid fa-stethoscope me-1"></i>
                                                 Tratamiento prescrito: <strong>{{ recetaMedica.tratamientoSugerido || 'Tratamiento Quiropráctico' }}</strong> (Preseleccionado automáticamente)
                                             </small>
@@ -59,38 +106,116 @@
                             }
                         </div>
 
-                        <div class="row mb-4" style="position: relative; z-index: 900;">
-                            <!-- Tratamiento -->
+                        <!-- TRATAMIENTO Y CANTIDAD DE SESIONES -->
+                        <div class="row mb-4">
                             <div class="col-md-8 mb-3 mb-md-0">
-                                <label class="fw-bold mb-2 text-white">Tratamiento a adquirir:</label>
-                                <select class="form-control form-control-lg shadow-sm" name="idTratamiento" [(ngModel)]="nuevaVenta.idTratamiento" (change)="calcularTotal()" required style="cursor: pointer;">
+                                <label class="form-label fw-bold mb-2">
+                                    <i class="fa-solid fa-hand-holding-medical me-1 text-danger"></i> Tratamiento a adquirir:
+                                </label>
+                                <select class="form-control form-control-lg shadow-sm" name="idTratamiento" [(ngModel)]="nuevaVenta.idTratamiento" (change)="calcularTotal()" required>
                                     <option value="" disabled selected>-- Seleccione un Servicio --</option>
-                                    
                                     @for (t of listaTratamientos; track t.idTratamiento) {
-                                        <option [value]="t.idTratamiento">{{ t.nombre }}</option>
+                                        <option [value]="t.idTratamiento">{{ t.nombre }} (S/. {{ t.precio | number:'1.2-2' }})</option>
                                     }
                                 </select>
                             </div>
 
-                            <!-- Sesiones -->
                             <div class="col-md-4">
-                                <label class="fw-bold mb-2 text-white">N° de Sesiones:</label>
+                                <label class="form-label fw-bold mb-2">
+                                    <i class="fa-solid fa-layer-group me-1 text-danger"></i> N° de Sesiones:
+                                </label>
                                 <input type="number" class="form-control form-control-lg text-center shadow-sm" name="totalSesiones" [(ngModel)]="nuevaVenta.totalSesiones" (input)="calcularTotal()" min="1" max="50" required>
                             </div>
                         </div>
 
-                        <!-- Total a cobrar -->
-                        <div class="card mb-4 rounded-3 shadow-sm" style="background-color: #1a1d20; border: 1px solid #198754; position: relative; z-index: 1;">
+                        <!-- PROGRAMACIÓN DE CITAS Y HORARIOS (FECHA Y HORA DE CADA SESIÓN) -->
+                        @if (nuevaVenta.totalSesiones > 0) {
+                            <div class="card border mb-4 rounded-3 shadow-sm bg-light">
+                                <div class="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                    <div class="fw-bold text-dark">
+                                        <i class="fa-solid fa-calendar-days text-danger me-2"></i> Cronograma de Sesiones ({{ sesionesProgramadas.length }})
+                                    </div>
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <label class="small fw-bold text-muted mb-0"><i class="fa-regular fa-calendar me-1"></i>1ª Sesión:</label>
+                                            <input type="date" class="form-control form-control-sm text-center" style="width: 135px;" 
+                                                [(ngModel)]="fechaInicioProgramacion" 
+                                                (change)="generarSesionesProgramadas()" 
+                                                [ngModelOptions]="{standalone: true}">
+                                        </div>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn" 
+                                                [ngClass]="frecuenciaProgramacion === 'INTERDIARIO' ? 'btn-danger text-white fw-bold shadow-sm' : 'btn-outline-secondary'"
+                                                (click)="generarSesionesProgramadas('INTERDIARIO')">
+                                                Interdiario (+2 días)
+                                            </button>
+                                            <button type="button" class="btn" 
+                                                [ngClass]="frecuenciaProgramacion === 'SEMANAL' ? 'btn-danger text-white fw-bold shadow-sm' : 'btn-outline-secondary'"
+                                                (click)="generarSesionesProgramadas('SEMANAL')">
+                                                Semanal (+7 días)
+                                            </button>
+                                            <button type="button" class="btn" 
+                                                [ngClass]="frecuenciaProgramacion === 'DIARIO' ? 'btn-danger text-white fw-bold shadow-sm' : 'btn-outline-secondary'"
+                                                (click)="generarSesionesProgramadas('DIARIO')">
+                                                Diario (+1 día)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-3">
+                                    <p class="small text-muted mb-3">
+                                        <i class="fa-solid fa-circle-info text-primary me-1"></i>
+                                        Configure o ajuste la fecha y hora de cada sesión. Al emitir la venta, estas sesiones se agendarán automáticamente en la agenda del doctor y en la Sala de Espera del día que corresponda.
+                                    </p>
+                                    
+                                    <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                                        <table class="table table-sm table-bordered bg-white align-middle text-center mb-0">
+                                            <thead class="table-light small">
+                                                <tr>
+                                                    <th style="width: 15%;">Sesión</th>
+                                                    <th style="width: 50%;">Fecha Programada</th>
+                                                    <th style="width: 35%;">Hora Estimada</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (s of sesionesProgramadas; track s.numeroSesion) {
+                                                    <tr>
+                                                        <td>
+                                                            <span class="badge bg-secondary fw-semibold">Sesión {{ s.numeroSesion }}</span>
+                                                        </td>
+                                                        <td>
+                                                            <input type="date" class="form-control form-control-sm text-center" 
+                                                                [(ngModel)]="s.fecha" 
+                                                                [name]="'fechaSesion_' + s.numeroSesion" 
+                                                                required>
+                                                        </td>
+                                                        <td>
+                                                            <input type="time" class="form-control form-control-sm text-center" 
+                                                                [(ngModel)]="s.hora" 
+                                                                [name]="'horaSesion_' + s.numeroSesion" 
+                                                                required>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- TOTAL A COBRAR -->
+                        <div class="card venta-total-card mb-4 rounded-3 shadow-sm">
                             <div class="card-body text-center py-4">
-                                <h5 class="text-muted mb-2 fw-bold">TOTAL A COBRAR</h5>
-                                <h1 class="display-4 fw-bold text-success m-0">S/. {{ nuevaVenta.costoTotal | number:'1.2-2' }}</h1>
+                                <h5 class="venta-total-label mb-2">TOTAL A COBRAR</h5>
+                                <h1 class="display-4 venta-total-amount m-0">S/. {{ nuevaVenta.costoTotal | number:'1.2-2' }}</h1>
                             </div>
                         </div>
 
-                        <!-- Botón de pago -->
-                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 rounded-pill shadow" 
-                                [disabled]="ventaForm.invalid || nuevaVenta.costoTotal <= 0" style="position: relative; z-index: 1;">
-                            <i class="fa-solid fa-check-circle"></i> EMITIR COMPROBANTE Y GENERAR CITAS
+                        <!-- BOTÓN DE PAGO Y EMISIÓN -->
+                        <button type="submit" class="btn venta-submit-btn btn-lg w-100 fw-bold py-3 rounded-pill shadow" 
+                                [disabled]="ventaForm.invalid || !nuevaVenta.dniPaciente || nuevaVenta.costoTotal <= 0">
+                            <i class="fa-solid fa-file-invoice-dollar me-2"></i> EMITIR COMPROBANTE Y AGENDAR CITAS
                         </button>
 
                     </form>
@@ -100,3 +225,130 @@
         </div>
     </div>
 </div>
+
+<!-- ========================================================
+     MODAL DE COMPROBANTE DE PAGO (BOLETA ELECTRÓNICA DE VENTA)
+     Con descarga directa / impresión PDF
+     ======================================================== -->
+@if (mostrarModalComprobante && comprobanteEmitido) {
+    <div class="modal-comprobante-backdrop">
+        <div class="ticket-comprobante p-4 p-md-5 seccion-imprimible position-relative">
+            
+            <!-- Botón cerrar flotante (no se imprime) -->
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-4 no-print" (click)="cerrarComprobante()"></button>
+
+            <!-- ENCABEZADO CLÍNICA -->
+            <div class="ticket-header text-center">
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                    <i class="fa-solid fa-heart-pulse text-danger fs-2"></i>
+                    <h3 class="fw-bold mb-0 text-dark" style="letter-spacing: -0.02em;">CENTRO QUIROPRÁCTICO QUIROSALUD</h3>
+                </div>
+                <p class="mb-0 text-muted small">Especialistas en Salud y Alineación de la Columna Vertebral</p>
+                <p class="mb-1 text-muted small">R.U.C. 20608945123 | Teléfono: (01) 456-7890 / 991-234-567</p>
+                <p class="mb-0 text-muted small">Av. Javier Prado Este 2501, San Borja - Lima, Perú</p>
+
+                <div class="badge bg-danger fs-5 mt-3 px-4 py-2 text-uppercase shadow-sm">
+                    BOLETA ELECTRÓNICA DE VENTA N° {{ comprobanteEmitido.nroHp }}
+                </div>
+            </div>
+
+            <!-- CUERPO / DATOS DEL PACIENTE Y FECHA -->
+            <div class="ticket-body py-3">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <strong>Fecha de Emisión:</strong> {{ comprobanteEmitido.fechaEmision }}
+                    </div>
+                    <div class="col-6 text-end">
+                        <strong>Hora de Emisión:</strong> {{ comprobanteEmitido.horaEmision }}
+                    </div>
+                    <div class="col-12">
+                        <strong>Señor(a):</strong> {{ comprobanteEmitido.pacienteNombre }}
+                    </div>
+                    <div class="col-6">
+                        <strong>DNI / Doc.:</strong> {{ comprobanteEmitido.dniPaciente }}
+                    </div>
+                    <div class="col-6 text-end">
+                        <strong>Teléfono:</strong> {{ comprobanteEmitido.telefonoPaciente }}
+                    </div>
+                    <div class="col-12">
+                        <strong>Dirección:</strong> {{ comprobanteEmitido.direccionPaciente }}
+                    </div>
+                </div>
+
+                <!-- TABLA DE DETALLE DEL SERVICIO -->
+                <table class="table table-sm table-bordered align-middle mb-3 text-center">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Cant.</th>
+                            <th class="text-start">Descripción del Tratamiento</th>
+                            <th>P. Unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-bold">{{ comprobanteEmitido.totalSesiones }} ses.</td>
+                            <td class="text-start">
+                                <strong>{{ comprobanteEmitido.nombreTratamiento }}</strong>
+                                <br><small class="text-muted">Paquete quiropráctico con sesiones programadas</small>
+                            </td>
+                            <td>S/. {{ comprobanteEmitido.precioUnitario | number:'1.2-2' }}</td>
+                            <td class="fw-bold">S/. {{ comprobanteEmitido.costoTotal | number:'1.2-2' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- CRONOGRAMA DE CITAS AGENDADAS -->
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <div class="fw-bold small text-dark mb-2">
+                        <i class="fa-regular fa-calendar-check text-success me-1"></i> Cronograma de Citas Agendadas para el Paciente:
+                    </div>
+                    <div class="row small g-2">
+                        @for (c of comprobanteEmitido.citas; track c.numeroSesion) {
+                            <div class="col-md-6">
+                                <span class="badge bg-secondary me-1">Sesión {{ c.numeroSesion }}</span>
+                                <strong class="text-dark">{{ c.fecha }}</strong> a las <span class="text-muted">{{ c.hora }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- TOTALES -->
+                <div class="ticket-totales py-2 text-end">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Operación Gravada (Subtotal):</span>
+                        <span>S/. {{ (comprobanteEmitido.costoTotal / 1.18) | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">I.G.V. (18%):</span>
+                        <span>S/. {{ (comprobanteEmitido.costoTotal - (comprobanteEmitido.costoTotal / 1.18)) | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between fs-4 fw-bold text-danger border-top pt-2">
+                        <span>TOTAL CANCELADO:</span>
+                        <span>S/. {{ comprobanteEmitido.costoTotal | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+
+                <div class="text-center small text-muted mt-3">
+                    <p class="mb-1"><i class="fa-solid fa-circle-check text-success me-1"></i> Estado: <strong>CANCELADO EN CAJA</strong> (Condición: Contado / Efectivo / POS)</p>
+                    <p class="mb-0">Atendido por Cajero(a): <strong>{{ comprobanteEmitido.cajero }}</strong></p>
+                    <p class="mt-2 text-secondary fst-italic">"Su bienestar y alineación espinal es nuestra prioridad. Por favor presente este comprobante al ingresar a cada una de sus sesiones."</p>
+                </div>
+            </div>
+
+            <!-- BOTONES DE ACCIÓN (Ocultos en la impresión) -->
+            <div class="text-center mt-4 d-flex flex-wrap justify-content-center gap-3 no-print">
+                <button type="button" class="btn btn-outline-secondary fw-bold px-4 py-2" (click)="cerrarComprobante()">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Volver a Caja
+                </button>
+                <button type="button" class="btn btn-danger fw-bold px-4 py-2 shadow" (click)="descargarPDF()">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i> Descargar Comprobante (PDF)
+                </button>
+                <button type="button" class="btn btn-outline-danger fw-bold px-3 py-2" (click)="imprimirComprobante()" title="Enviar directo a impresora física">
+                    <i class="fa-solid fa-print me-1"></i> Imprimir
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
